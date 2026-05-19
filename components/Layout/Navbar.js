@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import QuotationModal from "../ui/QuotationModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +23,7 @@ const navLinks = [
   { label: "About", to: "/about" },
   { label: "Products", to: "/products" },
   { label: "Services", to: "/services" },
+  { label: "Gallery", to: "/gallery" },
   { label: "Contact Us", to: "/contact" },
 ];
 
@@ -29,11 +31,11 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   const searchRef = useRef(null);
   const pathname = usePathname();
 
-  // Refs for GSAP targets
   const topBarRef = useRef(null);
   const logoRef = useRef(null);
   const iconsRef = useRef(null);
@@ -41,35 +43,27 @@ export default function Navbar() {
   const sidebarRef = useRef(null);
   const sidebarLinksRef = useRef([]);
   const searchDropRef = useRef(null);
-
-  // Sticky nav refs
   const stickyNavRef = useRef(null);
   const stickyLogoRef = useRef(null);
   const headerRef = useRef(null);
 
   const isActive = (to) => pathname === to;
 
-  // ── Mount stagger animation ──────────────────────────────────────────────
+  // Mount stagger
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-      // Top bar slides down
       tl.fromTo(
         topBarRef.current,
         { y: -20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5 },
       );
-
-      // Logo fades up
       tl.fromTo(
         logoRef.current,
         { y: -12, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.55 },
         "-=0.25",
       );
-
-      // Icon buttons stagger in from right
       if (iconsRef.current?.children) {
         tl.fromTo(
           [...iconsRef.current.children],
@@ -78,8 +72,6 @@ export default function Navbar() {
           "-=0.35",
         );
       }
-
-      // Nav links stagger in from below
       if (navLinksRef.current) {
         tl.fromTo(
           [...navLinksRef.current.querySelectorAll("li")],
@@ -89,31 +81,25 @@ export default function Navbar() {
         );
       }
     });
-
     return () => ctx.revert();
   }, []);
 
-  // ── Sticky nav scroll behaviour ───────────────────────────────────────────
+  // Sticky nav
   useEffect(() => {
     if (!stickyNavRef.current || !stickyLogoRef.current || !headerRef.current)
       return;
-
-    // Start hidden above viewport
     gsap.set(stickyNavRef.current, { y: -60, opacity: 0 });
     gsap.set(stickyLogoRef.current, { x: -40, opacity: 0 });
-
     const trigger = ScrollTrigger.create({
       trigger: headerRef.current,
-      start: "bottom top", // fires when bottom of header hits top of viewport
+      start: "bottom top",
       onEnter: () => {
-        // Slide sticky bar down
         gsap.to(stickyNavRef.current, {
           y: 0,
           opacity: 1,
           duration: 0.38,
           ease: "power3.out",
         });
-        // Logo slides in from left with a slight delay
         gsap.to(stickyLogoRef.current, {
           x: 0,
           opacity: 1,
@@ -138,14 +124,12 @@ export default function Navbar() {
         });
       },
     });
-
     return () => trigger.kill();
   }, []);
 
-  // ── Sidebar GSAP open / close ────────────────────────────────────────────
+  // Sidebar open/close
   useEffect(() => {
     if (!sidebarRef.current) return;
-
     if (menuOpen) {
       gsap.fromTo(
         sidebarRef.current,
@@ -173,7 +157,7 @@ export default function Navbar() {
     }
   }, [menuOpen]);
 
-  // ── Search dropdown pop-in ────────────────────────────────────────────────
+  // Search dropdown
   useEffect(() => {
     if (searchOpen && searchDropRef.current) {
       gsap.fromTo(
@@ -189,6 +173,7 @@ export default function Navbar() {
     setSearchOpen(false);
   }, [pathname]);
 
+  // Body scroll lock — sidebar OR quote modal
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -198,13 +183,17 @@ export default function Navbar() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
+      if (searchRef.current && !searchRef.current.contains(e.target))
         setSearchOpen(false);
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  const openQuote = () => {
+    setMenuOpen(false); // close sidebar if open on mobile
+    setQuoteOpen(true);
+  };
 
   return (
     <>
@@ -219,49 +208,12 @@ export default function Navbar() {
       />
 
       <header ref={headerRef} className="w-full bg-white font-serif shadow-sm">
-        {/* MAIN HEADER — h-[68px] / md:h-[84px] (was h-[88px] / md:h-[110px]) */}
+        {/* MAIN HEADER */}
         <div ref={topBarRef} className="border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-10">
             <div className="relative flex items-center justify-between h-[68px] md:h-[84px]">
-              {/* LEFT — Search */}
-              <div className="flex items-center gap-1">
-                {/* <div ref={searchRef} className="relative">
-                  <button
-                    onClick={() => setSearchOpen(!searchOpen)}
-                    aria-label="Search"
-                    className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    <Search size={18} />
-                  </button>
-
-                  {searchOpen && (
-                    <div
-                      ref={searchDropRef}
-                      className="absolute top-12 left-0 w-[280px] bg-white border border-gray-200 rounded-2xl shadow-2xl p-3.5 z-50"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Search size={15} className="text-gray-400 shrink-0" />
-                        <input
-                          autoFocus
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search products..."
-                          className="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400"
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery("")}
-                            className="text-gray-400 hover:text-black transition-colors"
-                          >
-                            <X size={15} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div> */}
-              </div>
+              {/* LEFT */}
+              <div className="flex items-center gap-1" />
 
               {/* LOGO */}
               <Link
@@ -282,6 +234,14 @@ export default function Navbar() {
                 ref={iconsRef}
                 className="flex items-center gap-0.5 sm:gap-1"
               >
+                {/* Get Quote — desktop */}
+                <button
+                  onClick={openQuote}
+                  className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
+                >
+                  Get Quote
+                </button>
+
                 <button
                   aria-label="Account"
                   className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
@@ -311,7 +271,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* DESKTOP NAV — h-[52px] (was h-[72px]) */}
+        {/* DESKTOP NAV */}
         <nav className="hidden md:block border-b border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <ul
@@ -331,9 +291,7 @@ export default function Navbar() {
                     {link.icon && <Home size={12} />}
                     <span>{link.label}</span>
                     <span
-                      className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${
-                        isActive(link.to) ? "w-full" : "w-0"
-                      }`}
+                      className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${isActive(link.to) ? "w-full" : "w-0"}`}
                     />
                   </Link>
                 </li>
@@ -343,7 +301,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ── STICKY NAV BAR (appears on scroll) ───────────────────────────── */}
+      {/* STICKY NAV */}
       <div
         ref={stickyNavRef}
         className="fixed top-0 left-0 right-0 z-30 hidden md:block"
@@ -352,7 +310,6 @@ export default function Navbar() {
         <div className="bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-[0_2px_20px_rgba(0,0,0,0.07)]">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <div className="relative flex items-center h-[52px]">
-              {/* Sliding logo — left side */}
               <Link
                 ref={stickyLogoRef}
                 href="/"
@@ -364,7 +321,6 @@ export default function Navbar() {
                 </span>
               </Link>
 
-              {/* Centered nav links */}
               <ul className="flex items-center justify-center gap-8 lg:gap-14 w-full">
                 {navLinks.map((link) => (
                   <li key={link.to}>
@@ -379,26 +335,31 @@ export default function Navbar() {
                       {link.icon && <Home size={11} />}
                       <span>{link.label}</span>
                       <span
-                        className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${
-                          isActive(link.to) ? "w-full" : "w-0"
-                        }`}
+                        className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${isActive(link.to) ? "w-full" : "w-0"}`}
                       />
                     </Link>
                   </li>
                 ))}
               </ul>
+
+              {/* Get Quote in sticky nav */}
+              <button
+                onClick={openQuote}
+                className="absolute right-0 inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
+              >
+                Get Quote
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* MOBILE SIDEBAR — GSAP controlled; initial state via inline style */}
+      {/* MOBILE SIDEBAR */}
       <aside
         ref={sidebarRef}
         style={{ transform: "translateX(100%)" }}
         className="fixed top-0 right-0 z-50 h-full w-[82%] max-w-sm bg-white shadow-[0_10px_60px_rgba(0,0,0,0.18)]"
       >
-        {/* TOP */}
         <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200">
           <div>
             <h2 className="text-xl tracking-[0.3em] font-light">COZY</h2>
@@ -414,7 +375,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* SEARCH */}
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-4 h-11">
             <Search size={16} className="text-gray-500 shrink-0" />
@@ -426,7 +386,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* NAV LINKS */}
         <div className="flex flex-col px-5 py-3">
           {navLinks.map((link, i) => (
             <Link
@@ -449,16 +408,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* BOTTOM CTA */}
+        {/* MOBILE SIDEBAR CTA */}
         <div className="absolute bottom-0 left-0 w-full p-5 border-t border-gray-200 bg-white">
-          <Link
-            href="/quote"
-            className="flex items-center justify-center h-12 bg-black text-white uppercase tracking-[0.32em] text-[11px] hover:bg-neutral-800 transition-colors duration-200"
+          <button
+            onClick={openQuote}
+            className="flex w-full items-center justify-center h-12 bg-black text-white uppercase tracking-[0.32em] text-[11px] hover:bg-[#62101F] transition-colors duration-200"
           >
             Get Quote
-          </Link>
+          </button>
         </div>
       </aside>
+
+      {/* QUOTATION MODAL */}
+      {quoteOpen && <QuotationModal onClose={() => setQuoteOpen(false)} />}
     </>
   );
 }
