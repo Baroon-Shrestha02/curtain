@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "./button";
 import { FaFacebookSquare, FaLinkedin } from "react-icons/fa";
 import { FaSquareInstagram, FaViber } from "react-icons/fa6";
 import { MdFilterFrames } from "react-icons/md";
+import { ChevronDown } from "lucide-react";
 
 export function StickyFooter({ className, ...props }) {
   return (
@@ -55,17 +56,18 @@ export function StickyFooter({ className, ...props }) {
             </div>
 
             {/* FOOTER LINKS */}
-            <div className="relative z-10 px-5 pb-8 md:px-12 md:pb-10">
-              <div className="grid gap-10 border-t border-white/20 pt-8 md:grid-cols-[1.2fr_repeat(4,1fr)]">
-                {/* Brand col */}
-                <AnimatedContainer className="space-y-5">
-                  <MdFilterFrames className="size-8 text-white" />
-                  <p className="max-w-sm text-sm leading-6 text-white/65">
-                    Kathmandu-based custom curtain makers. Order via Viber, pay
-                    with eSewa or Khalti, and we deliver across Nepal in 3–7
-                    days.
-                  </p>
-                  <div className="flex gap-2">
+            <div className="relative z-10 px-5 pb-6 md:px-12 md:pb-10">
+              <div className="border-t border-white/20 pt-6 md:pt-8">
+                {/* Brand row — full width on mobile, first col on desktop */}
+                <AnimatedContainer className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:hidden">
+                  <div className="flex items-center gap-3">
+                    <MdFilterFrames className="size-7 text-white" />
+                    <p className="text-sm leading-5 text-white/65">
+                      Kathmandu-based custom curtain makers. Delivered across
+                      Nepal in 3–7 days.
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
                     {socialLinks.map((link) => (
                       <Button
                         key={link.title}
@@ -79,31 +81,41 @@ export function StickyFooter({ className, ...props }) {
                   </div>
                 </AnimatedContainer>
 
-                {footerLinkGroups.map((group, index) => (
-                  <AnimatedContainer
-                    key={group.label}
-                    delay={0.1 + index * 0.1}
-                  >
-                    <h3 className="text-xs uppercase tracking-[0.18em] text-white">
-                      {group.label}
-                    </h3>
-                    <ul className="mt-4 space-y-2 text-sm text-white/60">
-                      {group.links.map((link) => (
-                        <li key={link.title}>
-                          <a
-                            href={link.href}
-                            className="transition-colors duration-300 hover:text-white"
-                          >
-                            {link.title}
-                          </a>
-                        </li>
+                {/* Link groups grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-[1.2fr_repeat(4,1fr)] md:gap-10">
+                  {/* Brand col — desktop only */}
+                  <AnimatedContainer className="hidden space-y-5 md:block">
+                    <MdFilterFrames className="size-8 text-white" />
+                    <p className="max-w-sm text-sm leading-6 text-white/65">
+                      Kathmandu-based custom curtain makers. Order via Viber,
+                      pay with eSewa or Khalti, and we deliver across Nepal in
+                      3–7 days.
+                    </p>
+                    <div className="flex gap-2">
+                      {socialLinks.map((link) => (
+                        <Button
+                          key={link.title}
+                          size="icon"
+                          variant="outline"
+                          className="size-8 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black"
+                        >
+                          <link.icon className="size-4" />
+                        </Button>
                       ))}
-                    </ul>
+                    </div>
                   </AnimatedContainer>
-                ))}
+
+                  {footerLinkGroups.map((group, index) => (
+                    <FooterLinkGroup
+                      key={group.label}
+                      group={group}
+                      delay={0.1 + index * 0.1}
+                    />
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-10 flex flex-col items-center justify-between gap-2 border-t border-white/15 pt-5 text-sm text-white/50 md:flex-row">
+              <div className="mt-6 flex flex-col items-center justify-between gap-1 border-t border-white/15 pt-4 text-xs text-white/50 sm:flex-row sm:text-sm md:mt-10 md:pt-5">
                 <p>© 2025 Cozy Curtains. All rights reserved.</p>
                 <p>Handcrafted in Kathmandu, Nepal.</p>
               </div>
@@ -112,6 +124,53 @@ export function StickyFooter({ className, ...props }) {
         </div>
       </div>
     </footer>
+  );
+}
+
+/** On mobile: collapsible accordion. On md+: always-visible static list. */
+function FooterLinkGroup({ group, delay }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <AnimatedContainer delay={delay}>
+      {/* Mobile accordion trigger */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between md:cursor-default md:pointer-events-none"
+        aria-expanded={open}
+      >
+        <h3 className="text-xs uppercase tracking-[0.18em] text-white">
+          {group.label}
+        </h3>
+        <ChevronDown
+          className={cn(
+            "size-4 text-white/50 transition-transform duration-300 md:hidden",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+
+      {/* Links — always visible on md+, toggled on mobile */}
+      <ul
+        className={cn(
+          "mt-3 space-y-2 overflow-hidden text-sm text-white/60 transition-all duration-300",
+          // Mobile: collapse/expand
+          "max-h-0 md:max-h-none",
+          open && "max-h-96",
+        )}
+      >
+        {group.links.map((link) => (
+          <li key={link.title}>
+            <a
+              href={link.href}
+              className="block py-0.5 transition-colors duration-300 hover:text-white"
+            >
+              {link.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </AnimatedContainer>
   );
 }
 
@@ -145,21 +204,11 @@ const footerLinkGroups = [
     ],
   },
   {
-    label: "Order & Support",
-    links: [
-      { title: "Order via Viber", href: "/order/viber" },
-      { title: "Pay with eSewa", href: "/order/esewa" },
-      { title: "Track Your Order", href: "/order/track" },
-      { title: "Care Instructions", href: "/support/care-guide" },
-      { title: "FAQs", href: "/support/faqs" },
-    ],
-  },
-  {
     label: "Company",
     links: [
       { title: "About Us", href: "/about" },
       { title: "Contact Us", href: "/contact" },
-      { title: "Our Showroom", href: "/showroom" },
+      { title: "Our Products", href: "/products" },
       { title: "Privacy Policy", href: "/privacy" },
       { title: "Terms & Conditions", href: "/terms" },
     ],
