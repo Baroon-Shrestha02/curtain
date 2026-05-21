@@ -36,7 +36,7 @@ const navLinks = [
   { label: "Home", to: "/", icon: true },
   { label: "About", to: "/about" },
   { label: "Curtains", to: "/products" },
-  { label: "Blends", to: "/products" },
+  { label: "Blinds", to: "/blinds" },
   { label: "Services", to: "/services" },
   { label: "Contact Us", to: "/contact" },
 ];
