@@ -3,43 +3,71 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, X, Menu, Home, ChevronRight } from "lucide-react";
+// import {
+//   Search,
+//   X,
+//   Menu,
+//   Home,
+//   ChevronRight,
+//   Phone,
+//   Quote,
+//   Ruler,
+//   Instagram,
+//   Facebook,
+// } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ChevronRight,
+  Home,
+  Menu,
+  Phone,
+  Quote,
+  Ruler,
+  Search,
+  X,
+} from "lucide-react";
+import { FaFacebook, FaInstagram } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Primary nav — lives in the BOTTOM bar (desktop) and the drawer (mobile)
 const navLinks = [
   { label: "Home", to: "/", icon: true },
   { label: "About", to: "/about" },
-  { label: "Products", to: "/products" },
+  { label: "Curtains", to: "/products" },
+  { label: "Blends", to: "/products" },
   { label: "Services", to: "/services" },
-  { label: "Gallery", to: "/gallery" },
   { label: "Contact Us", to: "/contact" },
+];
+
+// Secondary quick links — live in the TOP wine utility strip
+const quickLinks = [
+  { label: "Gallery", to: "/gallery" },
+  { label: "FAQ", to: "/faq" },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
 
   const searchRef = useRef(null);
   const pathname = usePathname();
 
   const topBarRef = useRef(null);
+  const brandBarRef = useRef(null);
   const logoRef = useRef(null);
   const iconsRef = useRef(null);
   const navLinksRef = useRef(null);
   const sidebarRef = useRef(null);
   const sidebarLinksRef = useRef([]);
-  const searchDropRef = useRef(null);
   const stickyNavRef = useRef(null);
   const stickyLogoRef = useRef(null);
   const headerRef = useRef(null);
 
   const isActive = (to) => pathname === to;
 
-  // Mount stagger — unchanged
+  // Mount stagger
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -49,10 +77,16 @@ export default function Navbar() {
         { y: 0, opacity: 1, duration: 0.5 },
       );
       tl.fromTo(
+        brandBarRef.current,
+        { y: -14, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+        "-=0.28",
+      );
+      tl.fromTo(
         logoRef.current,
-        { y: -12, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.55 },
-        "-=0.25",
+        { x: -16, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5 },
+        "-=0.3",
       );
       if (iconsRef.current?.children) {
         tl.fromTo(
@@ -74,7 +108,7 @@ export default function Navbar() {
     return () => ctx.revert();
   }, []);
 
-  // Sticky nav — unchanged
+  // Sticky nav
   useEffect(() => {
     if (!stickyNavRef.current || !stickyLogoRef.current || !headerRef.current)
       return;
@@ -117,7 +151,7 @@ export default function Navbar() {
     return () => trigger.kill();
   }, []);
 
-  // Sidebar open/close — unchanged
+  // Sidebar open/close
   useEffect(() => {
     if (!sidebarRef.current) return;
     if (menuOpen) {
@@ -147,17 +181,6 @@ export default function Navbar() {
     }
   }, [menuOpen]);
 
-  // Search dropdown — unchanged
-  useEffect(() => {
-    if (searchOpen && searchDropRef.current) {
-      gsap.fromTo(
-        searchDropRef.current,
-        { y: -8, opacity: 0, scale: 0.97 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" },
-      );
-    }
-  }, [searchOpen]);
-
   useEffect(() => {
     setMenuOpen(false);
     setSearchOpen(false);
@@ -184,74 +207,167 @@ export default function Navbar() {
         }`}
       />
 
-      <header ref={headerRef} className="w-full bg-white font-serif shadow-sm">
-        {/* MAIN HEADER */}
-        <div ref={topBarRef} className="border-b border-gray-200">
+      <header
+        ref={headerRef}
+        className="w-full bg-[#FFFDFB] font-serif shadow-sm"
+      >
+        {/* ===== LAYER 1 — TOP WINE UTILITY STRIP ===== */}
+        <div ref={topBarRef} className="bg-[#62101F] text-[#F0D9CE]">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-10">
-            <div className="relative flex items-center justify-between h-[68px] md:h-[84px]">
-              <div className="flex items-center gap-1" />
+            <div className="flex items-center justify-between h-9 md:h-10">
+              {/* Promo (left) */}
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] tracking-[0.1em]">
+                <Ruler size={13} className="shrink-0" />
+                <span className="hidden sm:inline">
+                  Free in-home measuring &amp; installation
+                </span>
+                <span className="sm:hidden">Free measuring &amp; install</span>
+              </div>
 
-              {/* LOGO */}
-              <Link
-                ref={logoRef}
-                href="/"
-                className="absolute left-1/2 -translate-x-1/2 text-center group"
-              >
-                <h1 className="text-xl sm:text-2xl md:text-[2.1rem] font-light tracking-[0.28em] text-black whitespace-nowrap transition-opacity duration-300 group-hover:opacity-60">
-                  COZY CURTAINS
-                </h1>
-                <p className="hidden md:block text-[9px] uppercase tracking-[0.5em] text-gray-400 mt-1">
-                  Premium Collection
-                </p>
+              {/* Quick links + socials (right) — desktop only */}
+              <div className="hidden md:flex items-center gap-4 text-[#E8C9BD]">
+                {quickLinks.map((q) => (
+                  <Link
+                    key={q.to}
+                    href={q.to}
+                    className="text-[10.5px] uppercase tracking-[0.22em] transition-colors duration-200 hover:text-white"
+                  >
+                    {q.label}
+                  </Link>
+                ))}
+                <span className="h-3 w-px bg-white/25" />
+                <div className="flex items-center gap-3">
+                  <a
+                    href="#"
+                    aria-label="Instagram"
+                    className="hover:text-white transition-colors"
+                  >
+                    <FaInstagram size={14} />
+                  </a>
+                  <a
+                    href="#"
+                    aria-label="Facebook"
+                    className="hover:text-white transition-colors"
+                  >
+                    <FaFacebook size={14} />
+                  </a>
+                </div>
+              </div>
+
+              {/* Mobile quick links — compact */}
+              <div className="flex md:hidden items-center gap-3 text-[#E8C9BD] text-[9px] uppercase tracking-[0.16em]">
+                {quickLinks.map((q) => (
+                  <Link
+                    key={q.to}
+                    href={q.to}
+                    className="hover:text-white transition-colors"
+                  >
+                    {q.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== LAYER 2 — BRAND BAR (logo left, contact + quote right) ===== */}
+        <div ref={brandBarRef} className="border-b border-[#E7DED5]">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-10">
+            <div className="flex items-center justify-between h-[68px] md:h-[88px]">
+              {/* LOGO — left */}
+              <Link ref={logoRef} href="/" className="flex items-center group">
+                <img
+                  src="/logo.png"
+                  className="h-12 md:h-16 w-auto"
+                  alt="Cozy Curtains"
+                />
               </Link>
 
-              {/* RIGHT — Icons */}
-              <div
-                ref={iconsRef}
-                className="flex items-center gap-0.5 sm:gap-1"
-              >
-                {/* Get Quote — desktop */}
+              {/* RIGHT — contact + quote (desktop) / hamburger (mobile) */}
+              <div ref={iconsRef} className="flex items-center gap-3 sm:gap-5">
+                {/* Phone block — desktop */}
+                <div className="hidden lg:flex items-center gap-2.5 text-[#6B5D52]">
+                  <Phone size={18} className="text-[#62101F]" />
+                  <div className="leading-tight">
+                    <div className="text-[9px] uppercase tracking-[0.16em] text-[#A8978A]">
+                      Call us
+                    </div>
+                    <div className="text-[12px]">+977 1 555 0172</div>
+                  </div>
+                </div>
+
+                {/* Search toggle — desktop */}
+                <div ref={searchRef} className="relative hidden md:block">
+                  <button
+                    onClick={() => setSearchOpen((s) => !s)}
+                    aria-label="Search"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-[#62101F] hover:bg-[#F3ECE4] transition-colors duration-200"
+                  >
+                    {searchOpen ? <X size={18} /> : <Search size={18} />}
+                  </button>
+                  {searchOpen && (
+                    <div className="absolute right-0 top-12 w-72 bg-white border border-[#E7DED5] rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-3 z-50">
+                      <div className="flex items-center gap-2 bg-[#F3ECE4] rounded-lg px-3 h-10">
+                        <Search size={15} className="text-[#62101F] shrink-0" />
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search curtains, fabrics…"
+                          className="bg-transparent outline-none w-full text-sm text-[#2C2620]"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Get Quote — desktop (filled wine, Variant C) */}
                 <Link
                   href="/quote"
-                  className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
+                  className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#62101F] px-5 py-2 text-[10px] uppercase tracking-[0.22em] text-[#FBF7F2] transition-all duration-200 hover:bg-[#4a0c17]"
                 >
+                  <Quote size={13} />
                   Get Quote
                 </Link>
 
+                {/* Quote pill (compact) + hamburger — mobile */}
+                <Link
+                  href="/quote"
+                  className="md:hidden inline-flex items-center gap-1.5 rounded-full border border-[#62101F] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-[#62101F]"
+                >
+                  <Quote size={11} />
+                  Quote
+                </Link>
                 <button
                   onClick={() => setMenuOpen(true)}
                   aria-label="Open menu"
-                  className="md:hidden w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
+                  className="md:hidden w-9 h-9 rounded-full flex items-center justify-center bg-[#62101F] text-[#FBF7F2] transition-colors duration-200"
                 >
-                  <Menu size={20} />
+                  <Menu size={18} />
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* DESKTOP NAV */}
-        <nav className="hidden md:block border-b border-gray-100 bg-white">
+        {/* ===== LAYER 3 — BOTTOM PRIMARY NAV (pill active, Variant B) ===== */}
+        <nav className="hidden md:block bg-[#FFFDFB] border-b border-[#E7DED5]">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <ul
               ref={navLinksRef}
-              className="flex items-center justify-center gap-8 lg:gap-14 h-[52px]"
+              className="flex items-center justify-center gap-2 lg:gap-3 h-[56px]"
             >
               {navLinks.map((link) => (
                 <li key={link.to}>
                   <Link
                     href={link.to}
-                    className={`relative flex items-center gap-1.5 text-[11.5px] uppercase tracking-[0.28em] transition-all duration-300 pb-0.5 ${
+                    className={`flex items-center gap-1.5 rounded-full px-4 lg:px-5 py-2 text-[11px] uppercase tracking-[0.22em] transition-all duration-300 ${
                       isActive(link.to)
-                        ? "text-black"
-                        : "text-gray-500 hover:text-black"
+                        ? "bg-[#62101F] text-[#FBF7F2]"
+                        : "text-[#8A7A6D] hover:text-[#62101F] hover:bg-[#F3ECE4]"
                     }`}
                   >
-                    {link.icon && <Home size={12} />}
+                    {link.icon && <Home size={11} />}
                     <span>{link.label}</span>
-                    <span
-                      className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${isActive(link.to) ? "w-full" : "w-0"}`}
-                    />
                   </Link>
                 </li>
               ))}
@@ -260,52 +376,51 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* STICKY NAV */}
+      {/* ===== STICKY NAV (compact: logo + pill nav + quote) ===== */}
       <div
         ref={stickyNavRef}
         className="fixed top-0 left-0 right-0 z-30 hidden md:block"
         style={{ transform: "translateY(-60px)", opacity: 0 }}
       >
-        <div className="bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-[0_2px_20px_rgba(0,0,0,0.07)]">
+        <div className="bg-[#FFFDFB]/95 backdrop-blur-md border-b border-[#E7DED5] shadow-[0_2px_20px_rgba(0,0,0,0.07)]">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
-            <div className="relative flex items-center h-[52px]">
+            <div className="relative flex items-center h-[56px]">
               <Link
                 ref={stickyLogoRef}
                 href="/"
-                className="absolute left-0 flex items-center gap-2 group"
+                className="absolute left-0 flex items-center group"
                 style={{ opacity: 0, transform: "translateX(-40px)" }}
               >
-                <span className="text-[15px] font-light tracking-[0.28em] text-black whitespace-nowrap transition-opacity duration-200 group-hover:opacity-60">
-                  COZY CURTAINS
-                </span>
+                <img
+                  src="/logo.png"
+                  className="h-10 w-auto"
+                  alt="Cozy Curtains"
+                />
               </Link>
 
-              <ul className="flex items-center justify-center gap-8 lg:gap-14 w-full">
+              <ul className="flex items-center justify-center gap-2 lg:gap-3 w-full">
                 {navLinks.map((link) => (
                   <li key={link.to}>
                     <Link
                       href={link.to}
-                      className={`relative flex items-center gap-1.5 text-[11px] uppercase tracking-[0.28em] transition-all duration-300 pb-0.5 ${
+                      className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] uppercase tracking-[0.22em] transition-all duration-300 ${
                         isActive(link.to)
-                          ? "text-black"
-                          : "text-gray-500 hover:text-black"
+                          ? "bg-[#62101F] text-[#FBF7F2]"
+                          : "text-[#8A7A6D] hover:text-[#62101F] hover:bg-[#F3ECE4]"
                       }`}
                     >
                       {link.icon && <Home size={11} />}
                       <span>{link.label}</span>
-                      <span
-                        className={`absolute left-0 -bottom-0.5 h-[1px] bg-black transition-all duration-300 ${isActive(link.to) ? "w-full" : "w-0"}`}
-                      />
                     </Link>
                   </li>
                 ))}
               </ul>
 
-              {/* Get Quote in sticky nav */}
               <Link
                 href="/quote"
-                className="absolute right-0 inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
+                className="absolute right-0 inline-flex items-center gap-1.5 rounded-full bg-[#62101F] px-4 py-1.5 text-[10px] uppercase tracking-[0.22em] text-[#FBF7F2] transition-all duration-200 hover:bg-[#4a0c17]"
               >
+                <Quote size={12} />
                 Get Quote
               </Link>
             </div>
@@ -313,34 +428,35 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE SIDEBAR */}
+      {/* ===== MOBILE SIDEBAR (holds all primary nav) ===== */}
       <aside
         ref={sidebarRef}
         style={{ transform: "translateX(100%)" }}
-        className="fixed top-0 right-0 z-50 h-full w-[82%] max-w-sm bg-white shadow-[0_10px_60px_rgba(0,0,0,0.18)]"
+        className="fixed top-0 right-0 z-50 h-full w-[82%] max-w-sm bg-[#FFFDFB] shadow-[0_10px_60px_rgba(0,0,0,0.18)]"
       >
-        <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 h-[68px] bg-[#62101F] text-[#FBF7F2]">
           <div>
             <h2 className="text-xl tracking-[0.3em] font-light">COZY</h2>
-            <p className="text-[9px] uppercase tracking-[0.28em] text-gray-400 mt-0.5">
+            <p className="text-[9px] uppercase tracking-[0.28em] text-[#E8C9BD] mt-0.5">
               Premium Curtains
             </p>
           </div>
           <button
             onClick={() => setMenuOpen(false)}
-            className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+            aria-label="Close menu"
+            className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-4 h-11">
-            <Search size={16} className="text-gray-500 shrink-0" />
+        <div className="p-4 border-b border-[#EFE6DC]">
+          <div className="flex items-center gap-3 bg-[#F3ECE4] rounded-xl px-4 h-11">
+            <Search size={16} className="text-[#62101F] shrink-0" />
             <input
               type="text"
               placeholder="Search..."
-              className="bg-transparent outline-none w-full text-sm"
+              className="bg-transparent outline-none w-full text-sm text-[#2C2620]"
             />
           </div>
         </div>
@@ -352,28 +468,43 @@ export default function Navbar() {
               href={link.to}
               ref={(el) => (sidebarLinksRef.current[i] = el)}
               onClick={() => setMenuOpen(false)}
-              className={`flex items-center justify-between h-[56px] px-2 border-b border-gray-100 uppercase tracking-[0.2em] text-[12px] transition-colors ${
+              className={`flex items-center justify-between h-[56px] px-2 border-b border-[#EFE6DC] uppercase tracking-[0.2em] text-[12px] transition-colors ${
                 isActive(link.to)
-                  ? "text-black font-medium"
-                  : "text-gray-500 hover:text-black"
+                  ? "text-[#62101F] font-medium"
+                  : "text-[#8A7A6D] hover:text-[#62101F]"
               }`}
             >
               <div className="flex items-center gap-3">
                 {link.icon && <Home size={14} />}
                 <span>{link.label}</span>
               </div>
-              <ChevronRight size={14} className="text-gray-400" />
+              <ChevronRight size={14} className="text-[#C9B8A8]" />
+            </Link>
+          ))}
+        </div>
+
+        {/* Quick links inside drawer */}
+        <div className="px-5 pt-2 pb-1 flex flex-wrap gap-x-5 gap-y-2">
+          {quickLinks.map((q) => (
+            <Link
+              key={q.to}
+              href={q.to}
+              onClick={() => setMenuOpen(false)}
+              className="text-[10px] uppercase tracking-[0.18em] text-[#A8978A] hover:text-[#62101F] transition-colors"
+            >
+              {q.label}
             </Link>
           ))}
         </div>
 
         {/* MOBILE SIDEBAR CTA */}
-        <div className="absolute bottom-0 left-0 w-full p-5 border-t border-gray-200 bg-white">
+        <div className="absolute bottom-0 left-0 w-full p-5 border-t border-[#EFE6DC] bg-[#FFFDFB]">
           <Link
             href="/quote"
             onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center justify-center h-12 bg-black text-white uppercase tracking-[0.32em] text-[11px] hover:bg-[#62101F] transition-colors duration-200"
+            className="flex w-full items-center justify-center gap-2 h-12 bg-[#62101F] text-[#FBF7F2] uppercase tracking-[0.32em] text-[11px] hover:bg-[#4a0c17] transition-colors duration-200 rounded-full"
           >
+            <Quote size={13} />
             Get Quote
           </Link>
         </div>

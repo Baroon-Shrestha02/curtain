@@ -61,7 +61,7 @@ export function StickyFooter({ className, ...props }) {
                 {/* Brand row — full width on mobile, first col on desktop */}
                 <AnimatedContainer className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:hidden">
                   <div className="flex items-center gap-3">
-                    <MdFilterFrames className="size-7 text-white" />
+                    <img src="/logo.png" className="h-16" />
                     <p className="text-sm leading-5 text-white/65">
                       Kathmandu-based custom curtain makers. Delivered across
                       Nepal in 3–7 days.
@@ -85,7 +85,7 @@ export function StickyFooter({ className, ...props }) {
                 <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-[1.2fr_repeat(4,1fr)] md:gap-10">
                   {/* Brand col — desktop only */}
                   <AnimatedContainer className="hidden space-y-5 md:block">
-                    <MdFilterFrames className="size-8 text-white" />
+                    <img src="/logo.png" className="h-12 md:h-16" />
                     <p className="max-w-sm text-sm leading-6 text-white/65">
                       Kathmandu-based custom curtain makers. Order via Viber,
                       pay with eSewa or Khalti, and we deliver across Nepal in

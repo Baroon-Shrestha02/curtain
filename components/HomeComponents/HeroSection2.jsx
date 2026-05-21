@@ -147,7 +147,7 @@ function ImageMarquee() {
 export default function HeroSection() {
   return (
     <section
-      className="relative flex min-h-screen items-center overflow-hidden bg-cover bg-center font-sans"
+      className="relative flex min-h-[86vh] items-center overflow-hidden bg-cover bg-center font-sans"
       style={{
         // ↓ Replace with your own background image URL
         backgroundImage:
@@ -212,7 +212,7 @@ export default function HeroSection() {
           <div className="mt-2 flex flex-wrap gap-3">
             <Link
               href="/products"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-[10px] bg-[#e2b97e] px-[26px] py-[13px] text-sm font-semibold text-[#1c0f00] transition-transform hover:scale-[1.04] active:scale-[0.97]"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-[10px] bg-[#62101F] text-white px-[26px] py-[13px] text-sm font-semibold text-[#1c0f00] transition-transform hover:scale-[1.04] active:scale-[0.97]"
             >
               Explore Collection
             </Link>

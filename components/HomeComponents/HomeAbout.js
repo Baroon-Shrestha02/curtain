@@ -40,7 +40,7 @@ const imageScale = {
 
 export default function HomeAbout() {
   return (
-    <section className="container mx-auto relative min-h-screen w-full bg-white overflow-hidden pt-16">
+    <section className="container mx-auto relative min-h-screen w-full bg-white overflow-hidden pt-16 px-5 sm:px-8 lg:px-12">
       <div className="grid min-h-[80vh] grid-cols-1 lg:grid-cols-3 items-center gap-12">
         {/* Left Content */}
         <div className="flex flex-col">

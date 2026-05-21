@@ -36,7 +36,7 @@ export default function HomeLatest({ products = [] }) {
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#FBF8F4] px-6 py-20 md:px-12 lg:py-28">
+    <section className="relative container mx-auto overflow-hidden bg-[#FBF8F4] px-6 py-16 md:px-12 rounded-2xl">
       {/* Decorative ambient blobs */}
       <div className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-[#C9A84C]/10 blur-3xl" />
       <div className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-[#993C1D]/5 blur-3xl" />

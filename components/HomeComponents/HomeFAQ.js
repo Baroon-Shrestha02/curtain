@@ -60,7 +60,7 @@ export default function HomeFaq() {
           {/* Contact row */}
           <div className="flex items-center justify-between pb-6 border-b border-gray-100 mb-2">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.18em] text-[#C9A84C] mb-1.5">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#62101F] mb-1.5">
                 Email us
               </p>
               <p
@@ -72,7 +72,7 @@ export default function HomeFaq() {
             </div>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 bg-[#1A0A0D] text-white rounded-full px-5 py-2.5 text-[12px] tracking-[0.1em] hover:bg-[#62101F] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#62101F] text-white rounded-full px-5 py-2.5 text-[12px] tracking-[0.1em] hover:bg-[#62101F] transition-colors shadow-[#62101F] hover:shadow-xl hover:-translate-y-2"
             >
               <Mail size={14} />
               Get in touch
@@ -132,11 +132,6 @@ export default function HomeFaq() {
             alt="Product showcase"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-[#1A0A0D]/55">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/70">
-              Premium Collection
-            </p>
-          </div>
         </div>
       </div>
 
@@ -159,7 +154,7 @@ export default function HomeFaq() {
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 bg-[#1A0A0D] text-white rounded-lg px-4 py-2.5 text-[11px] uppercase tracking-[0.12em] hover:bg-[#62101F] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#62101F] text-white rounded-lg px-4 py-2.5 text-[11px] uppercase tracking-[0.12em] hover:bg-[#62101F] transition-colors"
           >
             <MessageCircle size={14} />
             Contact us

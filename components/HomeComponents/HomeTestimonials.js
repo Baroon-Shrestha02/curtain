@@ -74,9 +74,6 @@ export default function HomeTestimonials() {
           viewport={{ once: true }}
           className="flex flex-col items-center text-center mb-14"
         >
-          <span className="inline-flex items-center gap-2 text-[12px] font-extralight tracking-[0.2em] uppercase px-4 py-2">
-            Customer Stories
-          </span>
           <h2
             className="text-4xl md:text-5xl font-light leading-tight mb-4"
             style={{

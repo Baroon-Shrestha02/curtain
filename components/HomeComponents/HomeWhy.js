@@ -151,7 +151,7 @@ export default function HomeWhy() {
       ref={sectionRef}
       className="relative overflow-hidden py-16 md:px-12 lg:px-24"
     >
-      <div className="relative max-w-7xl mx-auto">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="text-center mb-12">
           <h2
             ref={headingRef}
@@ -207,7 +207,9 @@ export default function HomeWhy() {
                   />
                   <span
                     className="block text-white font-bold text-base tracking-wide relative z-10"
-                    style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
+                    style={{
+                      fontFamily: "var(--font-playfair), Georgia, serif",
+                    }}
                   >
                     Cozy Curtains
                   </span>
