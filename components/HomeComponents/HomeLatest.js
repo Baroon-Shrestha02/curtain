@@ -152,14 +152,6 @@ export default function HomeLatest({ products = [] }) {
                       className="transition-all"
                     />
                   </button>
-
-                  {/* Quick add — slides up on hover */}
-                  <Link
-                    href={`/products/${p.id}`}
-                    className="absolute inset-x-3 bottom-3 translate-y-4 rounded-xl bg-white/95 py-2.5 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-[#1c1410] opacity-0 backdrop-blur transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100"
-                  >
-                    View Details
-                  </Link>
                 </div>
 
                 {/* Info */}

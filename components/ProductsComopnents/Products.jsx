@@ -95,7 +95,7 @@ Please provide more details.
                 </p>
 
                 <h2 className="text-4xl font-light tracking-wide text-black md:text-6xl">
-                  Explore Our Premium Collection
+                  Explore Our Premium Curtains
                 </h2>
 
                 <p className="mt-4 max-w-xl text-sm leading-7 text-black/55">
