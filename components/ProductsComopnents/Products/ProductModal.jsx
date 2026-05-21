@@ -4,7 +4,7 @@ import React from "react";
 import { X, MessageCircle, Star, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function ProductModal({ product, onClose, onViber }) {
+export default function ProductModal({ product, onClose, onWhatsApp }) {
   if (!product) return null;
 
   return (
@@ -33,10 +33,9 @@ export default function ProductModal({ product, onClose, onViber }) {
             >
               {/* ── LEFT — sticky image ── */}
               <div
-                className="relative w-full flex-shrink-0 bg-[#F7F2EE] md:w-[48%]"
+                className="relative w-full shrink-0 bg-[#F7F2EE] md:w-[48%]"
                 style={{ minHeight: "280px" }}
               >
-                {/* Sticky wrapper — sticks inside the scrollable right col */}
                 <div className="sticky top-0 h-[280px] md:h-full">
                   <img
                     src={product.image}
@@ -44,8 +43,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     className="h-full w-full object-cover"
                     style={{ minHeight: "280px", maxHeight: "90vh" }}
                   />
-
-                  {/* Badge */}
                   {(product.sale || product.badge) && (
                     <div
                       className="absolute left-4 top-4 rounded-full px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em]"
@@ -57,8 +54,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                       {product.badge ?? "Sale"}
                     </div>
                   )}
-
-                  {/* Wishlist */}
                   <div className="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/85 backdrop-blur-sm">
                     <Heart size={14} stroke="#62101F" strokeWidth={1.5} />
                   </div>
@@ -70,7 +65,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                 className="w-full flex-1 overflow-y-auto"
                 style={{ maxHeight: "90vh" }}
               >
-                {/* Close button */}
                 <button
                   onClick={onClose}
                   className="absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/80 text-white transition-transform duration-200 hover:rotate-90"
@@ -79,7 +73,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                 </button>
 
                 <div className="p-7 md:p-10">
-                  {/* Category */}
                   <p
                     className="mb-2 text-[9px] uppercase tracking-[0.3em]"
                     style={{ color: "#C9A84C" }}
@@ -87,7 +80,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     {product.category} · Premium Collection
                   </p>
 
-                  {/* Name */}
                   <h2
                     className="text-2xl font-light leading-tight md:text-3xl"
                     style={{
@@ -99,7 +91,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     {product.name}
                   </h2>
 
-                  {/* Stars */}
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex gap-0.5" style={{ color: "#C9A84C" }}>
                       {[1, 2, 3, 4, 5].map((s) => (
@@ -116,7 +107,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </span>
                   </div>
 
-                  {/* Price */}
                   <div className="mt-5 flex items-baseline gap-3">
                     {product.oldPrice && (
                       <span
@@ -137,7 +127,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </span>
                   </div>
 
-                  {/* Description */}
                   <p
                     className="mt-6 text-sm leading-7"
                     style={{ color: "#7A5C5C" }}
@@ -145,13 +134,11 @@ export default function ProductModal({ product, onClose, onViber }) {
                     {product.description}
                   </p>
 
-                  {/* Divider */}
                   <div
                     className="my-7 h-px"
                     style={{ background: "rgba(98,16,31,0.08)" }}
                   />
 
-                  {/* Tags */}
                   {product.tags?.length > 0 && (
                     <div className="mb-7">
                       <p
@@ -178,7 +165,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </div>
                   )}
 
-                  {/* Colours */}
                   {product.colors?.length > 0 && (
                     <div className="mb-7">
                       <p
@@ -202,7 +188,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </div>
                   )}
 
-                  {/* Fabric swatches */}
                   {product.swatches?.length > 0 && (
                     <div className="mb-7">
                       <p
@@ -224,7 +209,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </div>
                   )}
 
-                  {/* Specs */}
                   {product.specs && (
                     <div className="mb-7">
                       <p
@@ -253,7 +237,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </div>
                   )}
 
-                  {/* Divider */}
                   <div
                     className="mb-6 h-px"
                     style={{ background: "rgba(98,16,31,0.08)" }}
@@ -262,12 +245,12 @@ export default function ProductModal({ product, onClose, onViber }) {
                   {/* CTA buttons */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <button
-                      onClick={() => onViber(product)}
+                      onClick={() => onWhatsApp(product)}
                       className="flex items-center justify-center gap-2 rounded py-4 text-[11px] uppercase tracking-[0.18em] text-white transition-opacity duration-200 hover:opacity-90"
-                      style={{ background: "#62101F" }}
+                      style={{ background: "#25D366" }}
                     >
                       <MessageCircle size={14} />
-                      Order via Viber
+                      Order via WhatsApp
                     </button>
 
                     <button
@@ -282,7 +265,6 @@ export default function ProductModal({ product, onClose, onViber }) {
                     </button>
                   </div>
 
-                  {/* Delivery note */}
                   <p
                     className="mt-5 text-center text-[10px] uppercase tracking-[0.18em]"
                     style={{ color: "#9A7070" }}

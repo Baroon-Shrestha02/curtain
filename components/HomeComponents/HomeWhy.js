@@ -57,13 +57,6 @@ const features = [
     specialty: { value: "100–200 designs" },
   },
   {
-    icon: "📍",
-    label: "Shipping Tracking",
-    twopages: { value: true },
-    dept: { value: false },
-    specialty: { value: false },
-  },
-  {
     icon: "🏭",
     label: "Manufacturing",
     twopages: { value: "Fully In-House" },
@@ -83,13 +76,6 @@ const features = [
     twopages: { value: "7 × 24h" },
     dept: { value: false },
     specialty: { value: "By Appointment" },
-  },
-  {
-    icon: "💳",
-    label: "Payment Methods",
-    twopages: { value: "eSewa / Khalti / Cash" },
-    dept: { value: "Cash Only" },
-    specialty: { value: "Cash / Card" },
   },
 ];
 
@@ -163,7 +149,7 @@ export default function HomeWhy() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-28 px-6 md:px-12 lg:px-24"
+      className="relative overflow-hidden py-16 md:px-12 lg:px-24"
     >
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-12">
@@ -171,7 +157,7 @@ export default function HomeWhy() {
             ref={headingRef}
             className="text-3xl md:text-4xl lg:text-5xl mb-4 leading-tight"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "var(--font-playfair), Georgia, serif",
               color: "#1A0A0D",
               letterSpacing: "-0.02em",
             }}
@@ -221,7 +207,7 @@ export default function HomeWhy() {
                   />
                   <span
                     className="block text-white font-bold text-base tracking-wide relative z-10"
-                    style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                    style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
                   >
                     Cozy Curtains
                   </span>
@@ -300,15 +286,6 @@ export default function HomeWhy() {
                     {/* Label */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        {/* <span
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0"
-                          style={{
-                            background: "rgba(98,16,31,0.07)",
-                            color: "#62101F",
-                          }}
-                        >
-                          {row.icon}
-                        </span> */}
                         <span
                           className="font-medium"
                           style={{ color: "#1A0A0D" }}

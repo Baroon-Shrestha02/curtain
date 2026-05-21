@@ -3,18 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Search,
-  User,
-  X,
-  Menu,
-  Home,
-  ChevronRight,
-  ShoppingBag,
-} from "lucide-react";
+import { Search, X, Menu, Home, ChevronRight } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import QuotationModal from "../ui/QuotationModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -31,7 +22,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [quoteOpen, setQuoteOpen] = useState(false);
 
   const searchRef = useRef(null);
   const pathname = usePathname();
@@ -49,7 +39,7 @@ export default function Navbar() {
 
   const isActive = (to) => pathname === to;
 
-  // Mount stagger
+  // Mount stagger — unchanged
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -84,7 +74,7 @@ export default function Navbar() {
     return () => ctx.revert();
   }, []);
 
-  // Sticky nav
+  // Sticky nav — unchanged
   useEffect(() => {
     if (!stickyNavRef.current || !stickyLogoRef.current || !headerRef.current)
       return;
@@ -127,7 +117,7 @@ export default function Navbar() {
     return () => trigger.kill();
   }, []);
 
-  // Sidebar open/close
+  // Sidebar open/close — unchanged
   useEffect(() => {
     if (!sidebarRef.current) return;
     if (menuOpen) {
@@ -157,7 +147,7 @@ export default function Navbar() {
     }
   }, [menuOpen]);
 
-  // Search dropdown
+  // Search dropdown — unchanged
   useEffect(() => {
     if (searchOpen && searchDropRef.current) {
       gsap.fromTo(
@@ -173,14 +163,6 @@ export default function Navbar() {
     setSearchOpen(false);
   }, [pathname]);
 
-  // Body scroll lock — sidebar OR quote modal
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [menuOpen]);
-
   useEffect(() => {
     const handler = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target))
@@ -189,11 +171,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  const openQuote = () => {
-    setMenuOpen(false); // close sidebar if open on mobile
-    setQuoteOpen(true);
-  };
 
   return (
     <>
@@ -212,7 +189,6 @@ export default function Navbar() {
         <div ref={topBarRef} className="border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-10">
             <div className="relative flex items-center justify-between h-[68px] md:h-[84px]">
-              {/* LEFT */}
               <div className="flex items-center gap-1" />
 
               {/* LOGO */}
@@ -235,29 +211,12 @@ export default function Navbar() {
                 className="flex items-center gap-0.5 sm:gap-1"
               >
                 {/* Get Quote — desktop */}
-                <button
-                  onClick={openQuote}
+                <Link
+                  href="/quote"
                   className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
                 >
                   Get Quote
-                </button>
-
-                <button
-                  aria-label="Account"
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <User size={18} />
-                </button>
-
-                <button
-                  aria-label="Cart"
-                  className="relative w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <ShoppingBag size={18} />
-                  <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black text-white text-[9px] flex items-center justify-center font-medium leading-none">
-                    0
-                  </span>
-                </button>
+                </Link>
 
                 <button
                   onClick={() => setMenuOpen(true)}
@@ -343,12 +302,12 @@ export default function Navbar() {
               </ul>
 
               {/* Get Quote in sticky nav */}
-              <button
-                onClick={openQuote}
+              <Link
+                href="/quote"
                 className="absolute right-0 inline-flex items-center gap-1.5 rounded-full border border-black/20 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black transition-all duration-200 hover:bg-black hover:text-white"
               >
                 Get Quote
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -410,17 +369,15 @@ export default function Navbar() {
 
         {/* MOBILE SIDEBAR CTA */}
         <div className="absolute bottom-0 left-0 w-full p-5 border-t border-gray-200 bg-white">
-          <button
-            onClick={openQuote}
+          <Link
+            href="/quote"
+            onClick={() => setMenuOpen(false)}
             className="flex w-full items-center justify-center h-12 bg-black text-white uppercase tracking-[0.32em] text-[11px] hover:bg-[#62101F] transition-colors duration-200"
           >
             Get Quote
-          </button>
+          </Link>
         </div>
       </aside>
-
-      {/* QUOTATION MODAL */}
-      {quoteOpen && <QuotationModal onClose={() => setQuoteOpen(false)} />}
     </>
   );
 }

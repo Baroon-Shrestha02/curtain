@@ -1,0 +1,223 @@
+"use client";
+
+import { useRef, useState } from "react";
+import Link from "next/link";
+import { motion } from "motion/react";
+import {
+  Heart,
+  Star,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+export default function HomeLatest({ products = [] }) {
+  const scrollRef = useRef(null);
+  const [wishlist, setWishlist] = useState(() => new Set());
+
+  const toggleWishlist = (id) => {
+    setWishlist((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const scrollBy = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * 320, behavior: "smooth" });
+  };
+
+  const badgeStyles = {
+    Bestseller: "bg-[#0F6E56] text-[#E1F5EE]",
+    Sale: "bg-[#993C1D] text-[#FAECE7]",
+    default: "bg-[#1c0f00] text-[#e2b97e]",
+  };
+
+  return (
+    <section className="relative w-full overflow-hidden bg-[#FBF8F4] px-6 py-20 md:px-12 lg:py-28">
+      {/* Decorative ambient blobs */}
+      <div className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-[#C9A84C]/10 blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-[#993C1D]/5 blur-3xl" />
+
+      <div className="relative mx-auto max-w-[1320px]">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+        >
+          <div className="max-w-xl">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-px w-10 bg-[#C9A84C]" />
+              <p className="text-[11px] uppercase tracking-[0.3em] text-[#C9A84C]">
+                New Arrivals
+              </p>
+            </div>
+            <h2
+              className="text-4xl font-light leading-[1.08] tracking-tight text-[#1c1410] md:text-[52px]"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Our Latest <span className="italic text-[#9a7b2e]">Products</span>
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-[#7a6f63]">
+              Hand-finished drapery and textures, curated for the season —
+              crafted to soften light and frame every room beautifully.
+            </p>
+          </div>
+
+          {/* Controls + view all */}
+          <div className="flex items-center gap-3">
+            <div className="hidden gap-2 md:flex">
+              <button
+                onClick={() => scrollBy(-1)}
+                aria-label="Scroll left"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e3dccf] text-[#1c1410] transition hover:border-[#C9A84C] hover:bg-[#C9A84C] hover:text-white"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() => scrollBy(1)}
+                aria-label="Scroll right"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e3dccf] text-[#1c1410] transition hover:border-[#C9A84C] hover:bg-[#C9A84C] hover:text-white"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            <Link
+              href="/products"
+              className="group hidden items-center gap-2 rounded-full bg-[#1c1410] px-6 py-3 text-[11px] uppercase tracking-[0.16em] text-[#f5efe6] transition hover:bg-[#2e221a] md:inline-flex"
+            >
+              View All
+              <ArrowUpRight
+                size={15}
+                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Cards */}
+        <div
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {products.map((p, i) => {
+            const liked = wishlist.has(p.id);
+            return (
+              <motion.article
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.1 + i * 0.07,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="group w-[260px] flex-shrink-0 snap-start"
+              >
+                {/* Image */}
+                <div className="relative mb-4 h-[330px] w-full overflow-hidden rounded-2xl bg-[#F2EBE3]">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
+                  />
+                  {/* Hover veil */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+                  {p.badge && (
+                    <span
+                      className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[9px] font-medium uppercase tracking-[0.16em] ${
+                        badgeStyles[p.badge] || badgeStyles.default
+                      }`}
+                    >
+                      {p.badge}
+                    </span>
+                  )}
+
+                  <button
+                    onClick={() => toggleWishlist(p.id)}
+                    aria-label="Add to wishlist"
+                    aria-pressed={liked}
+                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur transition hover:scale-110 hover:bg-white"
+                  >
+                    <Heart
+                      size={15}
+                      stroke="#62101F"
+                      fill={liked ? "#62101F" : "none"}
+                      strokeWidth={1.6}
+                      className="transition-all"
+                    />
+                  </button>
+
+                  {/* Quick add — slides up on hover */}
+                  <Link
+                    href={`/products/${p.id}`}
+                    className="absolute inset-x-3 bottom-3 translate-y-4 rounded-xl bg-white/95 py-2.5 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-[#1c1410] opacity-0 backdrop-blur transition-all duration-400 group-hover:translate-y-0 group-hover:opacity-100"
+                  >
+                    View Details
+                  </Link>
+                </div>
+
+                {/* Info */}
+                <div className="px-0.5">
+                  <div className="mb-2 flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        size={11}
+                        fill={s <= Math.round(p.rating) ? "#C9A84C" : "none"}
+                        stroke="#C9A84C"
+                        strokeWidth={1.5}
+                      />
+                    ))}
+                    <span className="ml-1.5 text-[11px] text-[#a89e90]">
+                      ({p.reviews})
+                    </span>
+                  </div>
+
+                  <h3 className="truncate text-[15px] font-medium text-[#1c1410]">
+                    {p.name}
+                  </h3>
+                  <p className="mb-2 text-[12px] uppercase tracking-[0.1em] text-[#a89e90]">
+                    {p.category}
+                  </p>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[16px] font-medium text-[#9a7b2e]">
+                      Rs. {p.price.toLocaleString()}
+                    </span>
+                    {p.oldPrice && (
+                      <span className="text-[12px] text-[#c4bbae] line-through">
+                        Rs. {p.oldPrice.toLocaleString()}
+                      </span>
+                    )}
+                    {p.oldPrice && (
+                      <span className="ml-auto rounded-md bg-[#FAECE7] px-2 py-0.5 text-[10px] font-medium text-[#993C1D]">
+                        -{Math.round((1 - p.price / p.oldPrice) * 100)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
+
+        {/* Mobile view all */}
+        <div className="mt-8 md:hidden">
+          <Link
+            href="/products"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1c1410] py-4 text-[11px] uppercase tracking-[0.16em] text-[#f5efe6] transition hover:bg-[#2e221a]"
+          >
+            View All Products
+            <ArrowUpRight size={15} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

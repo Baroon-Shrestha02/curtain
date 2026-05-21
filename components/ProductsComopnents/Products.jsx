@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
   categories,
@@ -16,19 +16,6 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("best");
   const [showFilters, setShowFilters] = useState(false);
-
-  // Lock background scroll when modal is open
-  useEffect(() => {
-    if (selectedProduct) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [selectedProduct]);
 
   const filteredProducts = useMemo(() => {
     let items = [...productData];

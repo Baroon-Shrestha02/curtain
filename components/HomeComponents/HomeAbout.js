@@ -40,7 +40,7 @@ const imageScale = {
 
 export default function HomeAbout() {
   return (
-    <section className="container mx-auto relative min-h-screen w-full bg-white overflow-hidden px-6 md:px-14 py-20">
+    <section className="container mx-auto relative min-h-screen w-full bg-white overflow-hidden pt-16">
       <div className="grid min-h-[80vh] grid-cols-1 lg:grid-cols-3 items-center gap-12">
         {/* Left Content */}
         <div className="flex flex-col">
@@ -57,7 +57,7 @@ export default function HomeAbout() {
               {...fadeUp(0.1 + i * 0.1)}
               className="leading-none tracking-tight text-[#0f0f0f]"
               style={{
-                fontFamily: "'Bebas Neue', 'Arial Black', sans-serif",
+                fontFamily: "var(--font-bebas), 'Arial Black', sans-serif",
                 fontSize: "clamp(2.5rem, 5vw, 5rem)",
                 marginBottom: i === 3 ? "2rem" : 0,
               }}

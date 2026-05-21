@@ -98,7 +98,7 @@ export default function HomeProducts() {
 
   return (
     <section
-      className="bg-white py-16 md:py-24 overflow-hidden"
+      className="bg-white pt-16 overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

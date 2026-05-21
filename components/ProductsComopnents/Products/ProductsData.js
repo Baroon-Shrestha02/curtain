@@ -13,7 +13,7 @@ export const productData = [
     rating: 4.8,
     reviews: 12,
     description:
-      "Premium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedrooms.",
+      "Premium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedroomsPremium jacquard curtain fabric with elegant woven patterns, suitable for luxury living rooms and bedrooms",
     colors: ["#d6c3a5", "#9ca3af", "#57534e", "#27272a"],
   },
   {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 
 export default function HomeHero() {
@@ -89,7 +90,7 @@ export default function HomeHero() {
         <h1
           className="text-white font-light leading-[0.95] tracking-tight text-5xl md:text-7xl lg:text-[110px] max-w-5xl"
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-playfair), Georgia, serif",
           }}
         >
           Elegant <br />
@@ -104,13 +105,19 @@ export default function HomeHero() {
 
         {/* BUTTONS */}
         <div className="flex flex-wrap justify-center gap-5 mt-14">
-          <button className="bg-[#62101F] text-white px-12 py-5 uppercase tracking-[0.3em] text-xs md:text-sm transition-all duration-300 shadow-2xl">
+          <Link
+            href="/products"
+            className="bg-maroon text-white px-12 py-5 uppercase tracking-[0.3em] text-xs md:text-sm transition-all duration-300 shadow-2xl hover:bg-maroon-dark"
+          >
             Shop Now
-          </button>
+          </Link>
 
-          <button className="border border-white/30 hover:bg-white hover:text-black text-white px-12 py-5 uppercase tracking-[0.3em] text-xs md:text-sm transition-all duration-300">
+          <Link
+            href="/gallery"
+            className="border border-white/30 hover:bg-white hover:text-black text-white px-12 py-5 uppercase tracking-[0.3em] text-xs md:text-sm transition-all duration-300"
+          >
             Explore More
-          </button>
+          </Link>
         </div>
       </div>
 

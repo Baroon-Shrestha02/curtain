@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { TestimonialsColumn } from "../blocks/testimonials-columns-1";
+import { TestimonialsRow } from "../blocks/testimonialRow";
 
 const testimonials = [
   {
@@ -59,16 +59,14 @@ const testimonials = [
     role: "Homeowner, Pokhara",
   },
 ];
-
-const firstColumn = testimonials.slice(0, 3);
-const secondColumn = testimonials.slice(3, 6);
-const thirdColumn = testimonials.slice(6, 9);
+const firstRow = testimonials.slice(0, 5);
+const secondRow = testimonials.slice(4, 9); // slight overlap feels natural
 
 export default function HomeTestimonials() {
   return (
-    <section className="relative py-24 overflow-hidden">
+    <section className="relative py-16 overflow-hidden">
       <div className="relative container mx-auto px-5 sm:px-8 lg:px-12">
-        {/* Header */}
+        {/* Header — unchanged */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -76,11 +74,9 @@ export default function HomeTestimonials() {
           viewport={{ once: true }}
           className="flex flex-col items-center text-center mb-14"
         >
-          {/* Badge */}
           <span className="inline-flex items-center gap-2 text-[12px] font-extralight tracking-[0.2em] uppercase px-4 py-2">
             Customer Stories
           </span>
-
           <h2
             className="text-4xl md:text-5xl font-light leading-tight mb-4"
             style={{
@@ -94,16 +90,13 @@ export default function HomeTestimonials() {
               Nepal.
             </em>
           </h2>
-
           <p
             className="text-sm md:text-base max-w-md leading-relaxed"
             style={{ color: "#7A5C5C" }}
           >
-            From Kathmandu apartments to Pokhara villas — here's what our
+            From Kathmandu apartments to Pokhara villas — here&apos;s what our
             customers say after living with Cozy Curtains.
           </p>
-
-          {/* Star row */}
           <div className="flex items-center gap-3 mt-6">
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
@@ -126,25 +119,17 @@ export default function HomeTestimonials() {
           </div>
         </motion.div>
 
-        {/* Columns */}
+        {/* Two rows, opposite directions */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
           viewport={{ once: true }}
-          className="flex justify-center gap-4 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[680px] overflow-hidden"
+          className="flex flex-col gap-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
         >
-          <TestimonialsColumn testimonials={firstColumn} duration={15} />
-          <TestimonialsColumn
-            testimonials={secondColumn}
-            className="hidden md:block"
-            duration={19}
-          />
-          <TestimonialsColumn
-            testimonials={thirdColumn}
-            className="hidden lg:block"
-            duration={17}
-          />
+          <TestimonialsRow testimonials={firstRow} reverse={false} />
+          <TestimonialsRow testimonials={secondRow} reverse={true} />
+          <TestimonialsRow testimonials={firstRow} reverse={false} />
         </motion.div>
       </div>
     </section>

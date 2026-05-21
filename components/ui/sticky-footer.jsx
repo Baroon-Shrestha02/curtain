@@ -37,7 +37,7 @@ export function StickyFooter({ className, ...props }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
                 className="text-4xl font-light leading-tight text-white md:text-6xl"
-                style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
               >
                 Woven for Every
                 <br />

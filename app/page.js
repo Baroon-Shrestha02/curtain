@@ -1,18 +1,24 @@
+import { products } from "@/components/HomeComponents/Contants/Latest";
+import HeroSection from "@/components/HomeComponents/HeroSection2";
 import HomeAbout from "@/components/HomeComponents/HomeAbout";
-import HomeHero from "@/components/HomeComponents/HomeHero";
+import HomeFAQ from "@/components/HomeComponents/HomeFAQ";
+import HomeHeroCinematic from "@/components/HomeComponents/HomeHeroCinematic";
+import HomeLatest from "@/components/HomeComponents/HomeLatest";
 import HomeProducts from "@/components/HomeComponents/HomeProducts";
 import HomeTestimonials from "@/components/HomeComponents/HomeTestimonials";
 import HomeWhy from "@/components/HomeComponents/HomeWhy";
-import Image from "next/image";
 
 export default function Home() {
   return (
     <>
-      <HomeHero />
+      {/* <HomeHeroCinematic /> */}
+      <HeroSection />
       <HomeAbout />
       <HomeProducts />
+      <HomeLatest products={products} />
       <HomeWhy />
       <HomeTestimonials />
+      <HomeFAQ />
     </>
   );
 }
