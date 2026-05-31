@@ -116,7 +116,7 @@ export function StickyFooter({ className, ...props }) {
               </div>
 
               <div className="mt-6 flex flex-col items-center justify-between gap-1 border-t border-white/15 pt-4 text-xs text-white/50 sm:flex-row sm:text-sm md:mt-10 md:pt-5">
-                <p>© 2025 Cozy Curtains. All rights reserved.</p>
+                <p>© 2026 Cozy Curtains. All rights reserved.</p>
                 <p>Handcrafted in Kathmandu, Nepal.</p>
               </div>
             </div>
