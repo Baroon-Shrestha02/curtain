@@ -1,4 +1,3 @@
-import { products } from "@/components/HomeComponents/Contants/Latest";
 import HeroSection from "@/components/HomeComponents/HeroSection2";
 import HomeAbout from "@/components/HomeComponents/HomeAbout";
 import HomeFAQ from "@/components/HomeComponents/HomeFAQ";
@@ -15,7 +14,7 @@ export default function Home() {
       <HeroSection />
       <HomeAbout />
       <HomeProducts />
-      <HomeLatest products={products} />
+      <HomeLatest limit={8} />
       <HomeWhy />
       <HomeTestimonials />
       <HomeFAQ />

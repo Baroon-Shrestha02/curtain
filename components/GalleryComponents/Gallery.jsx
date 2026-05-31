@@ -1,137 +1,77 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import QuotationModal from "../ui/QuotationModal";
+import { getGallery, getGalleryCategories } from "../services/GalleryApi";
 
-const categories = [
-  { id: "all", label: "All Work" },
-  { id: "blackout", label: "Blackout" },
-  { id: "sheer", label: "Sheer & Linen" },
-  { id: "velvet", label: "Velvet" },
-  { id: "jacquard", label: "Jacquard" },
-  { id: "blinds", label: "Blinds" },
-  { id: "office", label: "Office & Commercial" },
-];
-
-const images = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80",
-    category: "sheer",
-    label: "Ivory Linen Sheer",
-    location: "Lazimpat, KTM",
-    span: "tall",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?w=800&q=80",
-    category: "velvet",
-    label: "Burgundy Velvet",
-    location: "Patan Residence",
-    span: "wide",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-    category: "blackout",
-    label: "Charcoal Blackout",
-    location: "Baneshwor Flat",
-    span: "normal",
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80",
-    category: "jacquard",
-    label: "Floral Jacquard",
-    location: "Bhaktapur Villa",
-    span: "normal",
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80",
-    category: "sheer",
-    label: "White Voile Panel",
-    location: "Budhanilkantha",
-    span: "tall",
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
-    category: "office",
-    label: "Corporate Fitout",
-    location: "Thamel Office, KTM",
-    span: "wide",
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
-    category: "blinds",
-    label: "Zebra Roller Blind",
-    location: "Koteshwor",
-    span: "normal",
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80",
-    category: "velvet",
-    label: "Olive Velvet Drape",
-    location: "Kirtipur",
-    span: "normal",
-  },
-  {
-    id: 9,
-    src: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800&q=80",
-    category: "blackout",
-    label: "Navy Blackout",
-    location: "Pokhara Residence",
-    span: "wide",
-  },
-  {
-    id: 10,
-    src: "https://images.unsplash.com/photo-1615873968403-89e068629265?w=800&q=80",
-    category: "jacquard",
-    label: "Gold Jacquard Panel",
-    location: "Durbarmarg",
-    span: "tall",
-  },
-  {
-    id: 11,
-    src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-    category: "sheer",
-    label: "Blush Linen Sheer",
-    location: "Naxal, KTM",
-    span: "normal",
-  },
-  {
-    id: 12,
-    src: "https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=800&q=80",
-    category: "office",
-    label: "Boardroom Drapes",
-    location: "Hattisar Office",
-    span: "normal",
-  },
-];
-
+// Rotating span pattern so the masonry layout still feels varied
+// even though the backend doesn't store a "span".
+const SPANS = ["tall", "wide", "normal", "normal"];
 const spanClass = {
   tall: "row-span-2",
   wide: "col-span-2",
   normal: "",
 };
 
+const labelize = (s = "") => s.charAt(0).toUpperCase() + s.slice(1);
+
 export default function GalleryPage() {
   const [active, setActive] = useState("all");
   const [quoteOpen, setQuoteOpen] = useState(false);
 
-  const filtered =
-    active === "all" ? images : images.filter((img) => img.category === active);
+  const [categories, setCategories] = useState([
+    { id: "all", label: "All Work" },
+  ]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch categories once.
+  useEffect(() => {
+    let active = true;
+    getGalleryCategories()
+      .then((list) => {
+        if (!active) return;
+        const cats = (list || []).map((c) => ({ id: c, label: labelize(c) }));
+        setCategories([{ id: "all", label: "All Work" }, ...cats]);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Fetch images whenever the active filter changes (server-side filtering).
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    const params = active === "all" ? {} : { category: active };
+    getGallery(params)
+      .then((res) => {
+        if (!alive) return;
+        const docs = res.data || [];
+        // Map backend shape -> the shape this UI expects.
+        const mapped = docs.map((d, i) => ({
+          id: d._id || i,
+          src: d.image?.url || d.url || "",
+          category: d.category || "",
+          label: d.alt || "Untitled",
+          location: d.location || "",
+          span: SPANS[i % SPANS.length],
+        }));
+        setImages(mapped);
+      })
+      .catch(() => alive && setImages([]))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [active]);
 
   return (
     <>
       <div className="bg-white min-h-screen">
-        {/* ── GALLERY SECTION ─────────────────────────────── */}
         <section
           className="px-5 pb-24 md:px-10 lg:px-16"
           style={{
@@ -163,85 +103,99 @@ export default function GalleryPage() {
                 </button>
               ))}
 
-              {/* Count badge */}
               <span
                 className="ml-auto text-[10px] uppercase tracking-[0.18em]"
                 style={{ color: "#C9A84C" }}
               >
-                {filtered.length} projects
+                {images.length} projects
               </span>
             </motion.div>
 
-            {/* Masonry-style grid */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[200px] md:auto-rows-[220px]"
+            {/* Grid / states */}
+            {loading ? (
+              <div
+                className="flex items-center justify-center py-32"
+                style={{ color: "#9A7070" }}
               >
-                {filtered.map((img, i) => (
-                  <motion.div
-                    key={img.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.55,
-                      ease: [0.22, 1, 0.36, 1],
-                      delay: i * 0.05,
-                    }}
-                    className={`group relative overflow-hidden cursor-pointer ${spanClass[img.span] ?? ""}`}
-                    style={{ borderRadius: "10px" }}
-                  >
-                    <img
-                      src={img.src}
-                      alt={img.label}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-                    />
-
-                    {/* Overlay */}
-                    <div
-                      className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(26,10,13,0.8) 0%, rgba(26,10,13,0.2) 50%, transparent 100%)",
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading
+                gallery…
+              </div>
+            ) : images.length === 0 ? (
+              <div className="py-32 text-center" style={{ color: "#7A5C5C" }}>
+                No projects in this category yet.
+              </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[200px] md:auto-rows-[220px]"
+                >
+                  {images.map((img, i) => (
+                    <motion.div
+                      key={img.id}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.55,
+                        ease: [0.22, 1, 0.36, 1],
+                        delay: i * 0.05,
                       }}
-                    />
-
-                    {/* Label — slides up on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 translate-y-3 p-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                      <p
-                        className="text-[10px] uppercase tracking-[0.2em]"
-                        style={{ color: "#C9A84C" }}
-                      >
-                        {img.location}
-                      </p>
-                      <p
-                        className="mt-0.5 text-sm font-light text-white"
-                        style={{
-                          fontFamily: "'Playfair Display', Georgia, serif",
-                        }}
-                      >
-                        {img.label}
-                      </p>
-                    </div>
-
-                    {/* Category pill — always visible */}
-                    <div
-                      className="absolute right-3 top-3 rounded-full px-2.5 py-1 text-[8px] uppercase tracking-[0.12em] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{
-                        background: "rgba(255,255,255,0.9)",
-                        color: "#62101F",
-                      }}
+                      className={`group relative overflow-hidden cursor-pointer ${spanClass[img.span] ?? ""}`}
+                      style={{ borderRadius: "10px" }}
                     >
-                      {categories.find((c) => c.id === img.category)?.label}
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+                      <img
+                        src={img.src}
+                        alt={img.label}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                      />
+
+                      <div
+                        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                        style={{
+                          background:
+                            "linear-gradient(to top, rgba(26,10,13,0.8) 0%, rgba(26,10,13,0.2) 50%, transparent 100%)",
+                        }}
+                      />
+
+                      <div className="absolute bottom-0 left-0 right-0 translate-y-3 p-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                        {img.location && (
+                          <p
+                            className="text-[10px] uppercase tracking-[0.2em]"
+                            style={{ color: "#C9A84C" }}
+                          >
+                            {img.location}
+                          </p>
+                        )}
+                        <p
+                          className="mt-0.5 text-sm font-light text-white"
+                          style={{
+                            fontFamily: "'Playfair Display', Georgia, serif",
+                          }}
+                        >
+                          {img.label}
+                        </p>
+                      </div>
+
+                      {img.category && (
+                        <div
+                          className="absolute right-3 top-3 rounded-full px-2.5 py-1 text-[8px] uppercase tracking-[0.12em] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                          style={{
+                            background: "rgba(255,255,255,0.9)",
+                            color: "#62101F",
+                          }}
+                        >
+                          {labelize(img.category)}
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            )}
 
             {/* Bottom CTA */}
             <motion.div

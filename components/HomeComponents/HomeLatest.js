@@ -1,19 +1,54 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
   Heart,
-  Star,
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { getLatestProducts } from "../services/ProductsApi";
 
-export default function HomeLatest({ products = [] }) {
+const PLACEHOLDER_IMG =
+  "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop";
+
+const badgeStyles = {
+  New: "bg-[#C9A84C] text-white",
+  Bestseller: "bg-[#0F6E56] text-[#E1F5EE]",
+  Sale: "bg-[#993C1D] text-[#FAECE7]",
+  Limited: "bg-[#1c0f00] text-[#e2b97e]",
+  default: "bg-[#1c0f00] text-[#e2b97e]",
+};
+
+export default function HomeLatest({ limit = 8 }) {
   const scrollRef = useRef(null);
   const [wishlist, setWishlist] = useState(() => new Set());
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getLatestProducts(limit)
+      .then((items) => {
+        if (!cancelled) setProducts(items);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [limit]);
 
   const toggleWishlist = (id) => {
     setWishlist((prev) => {
@@ -27,12 +62,6 @@ export default function HomeLatest({ products = [] }) {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollBy({ left: dir * 320, behavior: "smooth" });
-  };
-
-  const badgeStyles = {
-    Bestseller: "bg-[#0F6E56] text-[#E1F5EE]",
-    Sale: "bg-[#993C1D] text-[#FAECE7]",
-    default: "bg-[#1c0f00] text-[#e2b97e]",
   };
 
   return (
@@ -100,104 +129,131 @@ export default function HomeLatest({ products = [] }) {
         </motion.div>
 
         {/* Cards */}
-        <div
-          ref={scrollRef}
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {products.map((p, i) => {
-            const liked = wishlist.has(p.id);
-            return (
-              <motion.article
-                key={p.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.1 + i * 0.07,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="group w-[260px] flex-shrink-0 snap-start"
-              >
-                {/* Image */}
-                <div className="relative mb-4 h-[330px] w-full overflow-hidden rounded-2xl bg-[#F2EBE3]">
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
-                  />
-                  {/* Hover veil */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        {loading ? (
+          <SkeletonRow />
+        ) : error ? (
+          <ErrorRow />
+        ) : products.length === 0 ? (
+          <EmptyRow />
+        ) : (
+          <div
+            ref={scrollRef}
+            className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {products.map((p, i) => {
+              const liked = wishlist.has(p._id);
+              const image = p.images?.[0]?.url ?? PLACEHOLDER_IMG;
+              const showBadge = p.badge && p.badge !== "None";
+              const hasDiscount = (p.discount ?? 0) > 0;
+              const href = p.href ?? `/products/${p.slug}`;
 
-                  {p.badge && (
-                    <span
-                      className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[9px] font-medium uppercase tracking-[0.16em] ${
-                        badgeStyles[p.badge] || badgeStyles.default
-                      }`}
-                    >
-                      {p.badge}
-                    </span>
-                  )}
-
-                  <button
-                    onClick={() => toggleWishlist(p.id)}
-                    aria-label="Add to wishlist"
-                    aria-pressed={liked}
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur transition hover:scale-110 hover:bg-white"
+              return (
+                <motion.article
+                  key={p._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.1 + i * 0.07,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="group w-[260px] flex-shrink-0 snap-start"
+                >
+                  {/* Image */}
+                  <Link
+                    href={href}
+                    className="relative mb-4 block h-[330px] w-full overflow-hidden rounded-2xl bg-[#F2EBE3]"
                   >
-                    <Heart
-                      size={15}
-                      stroke="#62101F"
-                      fill={liked ? "#62101F" : "none"}
-                      strokeWidth={1.6}
-                      className="transition-all"
+                    <img
+                      src={image}
+                      alt={p.name}
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
                     />
-                  </button>
-                </div>
+                    {/* Hover veil */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                {/* Info */}
-                <div className="px-0.5">
-                  <div className="mb-2 flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        size={11}
-                        fill={s <= Math.round(p.rating) ? "#C9A84C" : "none"}
-                        stroke="#C9A84C"
-                        strokeWidth={1.5}
+                    {showBadge && (
+                      <span
+                        className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[9px] font-medium uppercase tracking-[0.16em] ${
+                          badgeStyles[p.badge] || badgeStyles.default
+                        }`}
+                      >
+                        {p.badge}
+                      </span>
+                    )}
+
+                    {!p.inStock && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/65 backdrop-blur-[1px]">
+                        <span className="rounded-full border border-black/15 bg-white px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black/65">
+                          Out of stock
+                        </span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleWishlist(p._id);
+                      }}
+                      aria-label="Add to wishlist"
+                      aria-pressed={liked}
+                      className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur transition hover:scale-110 hover:bg-white"
+                    >
+                      <Heart
+                        size={15}
+                        stroke="#62101F"
+                        fill={liked ? "#62101F" : "none"}
+                        strokeWidth={1.6}
+                        className="transition-all"
                       />
-                    ))}
-                    <span className="ml-1.5 text-[11px] text-[#a89e90]">
-                      ({p.reviews})
-                    </span>
-                  </div>
+                    </button>
+                  </Link>
 
-                  <h3 className="truncate text-[15px] font-medium text-[#1c1410]">
-                    {p.name}
-                  </h3>
-                  <p className="mb-2 text-[12px] uppercase tracking-[0.1em] text-[#a89e90]">
-                    {p.category}
-                  </p>
+                  {/* Info */}
+                  <div className="px-0.5">
+                    {p.colors?.length > 0 && (
+                      <div className="mb-2 flex gap-1.5">
+                        {p.colors.slice(0, 5).map((c) => (
+                          <span
+                            key={c._id ?? c.hex}
+                            title={c.name}
+                            className="h-3 w-3 rounded-full border border-black/10"
+                            style={{ backgroundColor: c.hex }}
+                          />
+                        ))}
+                      </div>
+                    )}
 
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[16px] font-medium text-[#9a7b2e]">
-                      Rs. {p.price.toLocaleString()}
-                    </span>
-                    {p.oldPrice && (
-                      <span className="text-[12px] text-[#c4bbae] line-through">
-                        Rs. {p.oldPrice.toLocaleString()}
+                    <Link href={href}>
+                      <h3 className="truncate text-[15px] font-medium capitalize text-[#1c1410] transition hover:text-[#9a7b2e]">
+                        {p.name}
+                      </h3>
+                    </Link>
+                    <p className="mb-2 text-[12px] uppercase tracking-[0.1em] text-[#a89e90]">
+                      {p.subcategory}
+                    </p>
+
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[16px] font-medium text-[#9a7b2e]">
+                        Rs. {p.price?.toLocaleString()}
                       </span>
-                    )}
-                    {p.oldPrice && (
-                      <span className="ml-auto rounded-md bg-[#FAECE7] px-2 py-0.5 text-[10px] font-medium text-[#993C1D]">
-                        -{Math.round((1 - p.price / p.oldPrice) * 100)}%
-                      </span>
-                    )}
+                      {hasDiscount && (
+                        <>
+                          <span className="text-[12px] text-[#c4bbae] line-through">
+                            Rs. {p.originalPrice?.toLocaleString()}
+                          </span>
+                          <span className="ml-auto rounded-md bg-[#FAECE7] px-2 py-0.5 text-[10px] font-medium text-[#993C1D]">
+                            -{p.discount}%
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            );
-          })}
-        </div>
+                </motion.article>
+              );
+            })}
+          </div>
+        )}
 
         {/* Mobile view all */}
         <div className="mt-8 md:hidden">
@@ -211,5 +267,44 @@ export default function HomeLatest({ products = [] }) {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ─── Helpers ──────────────────────────────────────────────────────────── */
+
+function SkeletonRow() {
+  return (
+    <div className="flex animate-pulse gap-6 overflow-hidden pb-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="w-[260px] flex-shrink-0">
+          <div className="mb-4 h-[330px] w-full rounded-2xl bg-[#ece4d8]" />
+          <div className="space-y-2 px-0.5">
+            <div className="h-3 w-3/4 rounded-full bg-[#ece4d8]" />
+            <div className="h-3 w-1/3 rounded-full bg-[#ece4d8]" />
+            <div className="h-4 w-1/2 rounded-full bg-[#ece4d8]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyRow() {
+  return (
+    <div className="rounded-2xl border border-[#e3dccf] bg-white px-6 py-14 text-center">
+      <p className="text-sm text-[#7a6f63]">
+        No new arrivals yet — check back soon.
+      </p>
+    </div>
+  );
+}
+
+function ErrorRow() {
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-14 text-center">
+      <p className="text-sm text-[#62101F]">
+        Couldn't load the latest products. Please try again later.
+      </p>
+    </div>
   );
 }

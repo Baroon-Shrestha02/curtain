@@ -1,11 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, MessageCircle, Star, Heart } from "lucide-react";
+import { Eye, MessageCircle, Heart } from "lucide-react";
 import { motion } from "motion/react";
 
-export default function ProductCard({ product, onView, onViber }) {
+const PLACEHOLDER_IMG =
+  "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop";
+
+const badgeBackground = {
+  New: "#C9A84C",
+  Bestseller: "#1A0A0D",
+  Sale: "#62101F",
+  Limited: "#3D2D1F",
+};
+
+export default function ProductCard({ product, onView, onWhatsApp }) {
   const [wished, setWished] = useState(false);
+
+  const image = product?.images?.[0]?.url ?? PLACEHOLDER_IMG;
+  const hasDiscount = (product?.discount ?? 0) > 0;
+  const showBadge = product?.badge && product.badge !== "None";
 
   return (
     <motion.div
@@ -25,56 +39,45 @@ export default function ProductCard({ product, onView, onViber }) {
           MOBILE  (< md) — Style B: horizontal
       ──────────────────────────────────────── */}
       <div className="flex md:hidden">
-        {/* Image — fixed width strip */}
         <div className="relative w-[110px] shrink-0 bg-[#F7F2EE]">
           <img
-            src={product.image}
+            src={image}
             alt={product.name}
             className="h-full w-full object-cover"
           />
 
-          {/* Badge */}
-          {(product.sale || product.badge) && (
+          {(showBadge || product.sale) && (
             <div
-              className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em]"
-              style={{ background: "#C9A84C", color: "#7a5500" }}
+              className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em] text-white"
+              style={{
+                background:
+                  badgeBackground[product.badge] ?? "#62101F",
+              }}
             >
-              {product.badge ?? "Sale"}
+              {showBadge ? product.badge : "Sale"}
+            </div>
+          )}
+
+          {!product.inStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
+              <span className="text-[8px] uppercase tracking-[0.18em] text-black/65">
+                Out of stock
+              </span>
             </div>
           )}
         </div>
 
-        {/* Info */}
         <div className="flex flex-1 flex-col justify-between p-3">
           <div>
-            {/* Tags */}
-            {product.tags?.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-1">
-                {product.tags.slice(0, 2).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full px-2 py-0.5 text-[8px] uppercase tracking-[0.08em]"
-                    style={{
-                      background: "rgba(98,16,31,0.06)",
-                      color: "#62101F",
-                      border: "0.5px solid rgba(98,16,31,0.12)",
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
             <p
               className="mb-0.5 text-[8px] uppercase tracking-[0.24em]"
               style={{ color: "#C9A84C" }}
             >
-              {product.category}
+              {product.subcategory}
             </p>
 
             <h3
-              className="text-[12px] font-medium leading-snug"
+              className="text-[12px] font-medium leading-snug capitalize"
               style={{
                 color: "#1A0A0D",
                 fontFamily: "'Playfair Display', Georgia, serif",
@@ -83,26 +86,27 @@ export default function ProductCard({ product, onView, onViber }) {
               {product.name}
             </h3>
 
-            <div className="mt-1.5 flex items-center gap-1">
-              <div className="flex gap-px" style={{ color: "#C9A84C" }}>
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={9} fill="currentColor" strokeWidth={0} />
+            {product.colors?.length > 0 && (
+              <div className="mt-1.5 flex gap-1">
+                {product.colors.slice(0, 4).map((c) => (
+                  <span
+                    key={c._id ?? c.hex}
+                    className="h-3 w-3 rounded-full border border-black/10"
+                    style={{ backgroundColor: c.hex }}
+                  />
                 ))}
               </div>
-              <span className="text-[9px]" style={{ color: "#9A7070" }}>
-                ({product.reviews})
-              </span>
-            </div>
+            )}
           </div>
 
           <div>
             <div className="mb-2 flex items-baseline gap-1.5">
-              {product.oldPrice && (
+              {hasDiscount && (
                 <span
                   className="text-[10px] line-through"
                   style={{ color: "#C4AEAD" }}
                 >
-                  Rs. {product.oldPrice}
+                  Rs. {product.originalPrice?.toLocaleString()}
                 </span>
               )}
               <span
@@ -112,13 +116,13 @@ export default function ProductCard({ product, onView, onViber }) {
                   fontFamily: "'Playfair Display', Georgia, serif",
                 }}
               >
-                Rs. {product.price}
+                Rs. {product.price?.toLocaleString()}
               </span>
             </div>
 
             <div className="flex gap-1.5">
               <button
-                onClick={() => onView(product)}
+                onClick={() => onView?.(product)}
                 className="rounded px-3 py-2 text-[9px] uppercase tracking-[0.14em] transition-all duration-300 hover:bg-[#1A0A0D] hover:text-white"
                 style={{
                   border: "0.5px solid rgba(26,10,13,0.2)",
@@ -129,7 +133,7 @@ export default function ProductCard({ product, onView, onViber }) {
                 View
               </button>
               <button
-                onClick={() => onViber(product)}
+                onClick={() => onWhatsApp?.(product)}
                 className="flex items-center gap-1 rounded px-3 py-2 text-[9px] uppercase tracking-[0.14em] text-white transition-opacity duration-300 hover:opacity-90"
                 style={{ background: "#62101F" }}
               >
@@ -140,7 +144,6 @@ export default function ProductCard({ product, onView, onViber }) {
           </div>
         </div>
 
-        {/* Wishlist — top right */}
         <button
           onClick={() => setWished((w) => !w)}
           className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/90"
@@ -159,34 +162,40 @@ export default function ProductCard({ product, onView, onViber }) {
           DESKTOP  (≥ md) — Style D: square + tags
       ──────────────────────────────────────── */}
       <div className="hidden md:flex md:flex-col">
-        {/* Square image */}
         <div
           className="relative overflow-hidden bg-[#F7F2EE]"
           style={{ aspectRatio: "1 / 1" }}
         >
           <img
-            src={product.image}
+            src={image}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
           />
 
-          {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-          {/* Badge */}
-          {(product.sale || product.badge) && (
+          {(showBadge || product.sale) && (
             <div
-              className="absolute left-3 top-3 z-10 rounded-full px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em]"
-              style={{ background: "rgba(255,255,255,0.92)", color: "#62101F" }}
+              className="absolute left-3 top-3 z-10 rounded-full px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-white"
+              style={{
+                background:
+                  badgeBackground[product.badge] ?? "#62101F",
+              }}
             >
-              {product.badge ?? "Sale"}
+              {showBadge ? product.badge : "Sale"}
             </div>
           )}
 
-          {/* Wishlist */}
+          {hasDiscount && (
+            <div className="absolute right-3 top-3 z-10 rounded-full bg-white/95 px-3 py-1 text-[9px] font-semibold tracking-[0.16em] text-[#62101F]">
+              -{product.discount}%
+            </div>
+          )}
+
           <button
             onClick={() => setWished((w) => !w)}
-            className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-110"
+            className="absolute right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-110"
+            style={{ top: hasDiscount ? 44 : 12 }}
             aria-label="Wishlist"
           >
             <Heart
@@ -197,10 +206,17 @@ export default function ProductCard({ product, onView, onViber }) {
             />
           </button>
 
-          {/* Quick view slide-up */}
+          {!product.inStock && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
+              <span className="rounded-full border border-black/15 bg-white px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black/65">
+                Out of stock
+              </span>
+            </div>
+          )}
+
           <div className="absolute bottom-0 left-0 right-0 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0">
             <button
-              onClick={() => onView(product)}
+              onClick={() => onView?.(product)}
               className="flex w-full items-center justify-center gap-2 bg-white/95 py-3 text-[10px] uppercase tracking-[0.2em] text-[#1A0A0D] backdrop-blur-sm transition-colors duration-200 hover:bg-white"
             >
               <Eye size={12} />
@@ -209,36 +225,16 @@ export default function ProductCard({ product, onView, onViber }) {
           </div>
         </div>
 
-        {/* Body */}
         <div className="flex flex-1 flex-col p-4">
-          {/* Tags */}
-          {product.tags?.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-1.5">
-              {product.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full px-2.5 py-1 text-[9px] uppercase tracking-[0.1em]"
-                  style={{
-                    background: "rgba(98,16,31,0.06)",
-                    color: "#62101F",
-                    border: "0.5px solid rgba(98,16,31,0.12)",
-                  }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
           <p
             className="mb-1 text-[9px] uppercase tracking-[0.28em]"
             style={{ color: "#C9A84C" }}
           >
-            {product.category}
+            {product.subcategory}
           </p>
 
           <h3
-            className="text-[13px] font-medium leading-snug"
+            className="text-[13px] font-medium leading-snug capitalize"
             style={{
               color: "#1A0A0D",
               fontFamily: "'Playfair Display', Georgia, serif",
@@ -247,16 +243,36 @@ export default function ProductCard({ product, onView, onViber }) {
             {product.name}
           </h3>
 
-          <div className="mt-2 flex items-center gap-1.5">
-            <div className="flex gap-0.5" style={{ color: "#C9A84C" }}>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} size={10} fill="currentColor" strokeWidth={0} />
+          {product.features?.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {product.features.slice(0, 3).map((f) => (
+                <span
+                  key={f}
+                  className="rounded-full px-2.5 py-1 text-[9px] uppercase tracking-[0.1em]"
+                  style={{
+                    background: "rgba(98,16,31,0.06)",
+                    color: "#62101F",
+                    border: "0.5px solid rgba(98,16,31,0.12)",
+                  }}
+                >
+                  {f}
+                </span>
               ))}
             </div>
-            <span className="text-[10px]" style={{ color: "#9A7070" }}>
-              ({product.reviews})
-            </span>
-          </div>
+          )}
+
+          {product.colors?.length > 0 && (
+            <div className="mt-3 flex gap-1.5">
+              {product.colors.slice(0, 5).map((c) => (
+                <span
+                  key={c._id ?? c.hex}
+                  title={c.name}
+                  className="h-3.5 w-3.5 rounded-full border border-black/10"
+                  style={{ backgroundColor: c.hex }}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="flex-1" />
 
@@ -266,12 +282,12 @@ export default function ProductCard({ product, onView, onViber }) {
           />
 
           <div className="mb-3 flex items-baseline gap-2">
-            {product.oldPrice && (
+            {hasDiscount && (
               <span
                 className="text-[11px] line-through"
                 style={{ color: "#C4AEAD" }}
               >
-                Rs. {product.oldPrice}
+                Rs. {product.originalPrice?.toLocaleString()}
               </span>
             )}
             <span
@@ -281,13 +297,13 @@ export default function ProductCard({ product, onView, onViber }) {
                 fontFamily: "'Playfair Display', Georgia, serif",
               }}
             >
-              Rs. {product.price}
+              Rs. {product.price?.toLocaleString()}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => onView(product)}
+              onClick={() => onView?.(product)}
               className="rounded py-2.5 text-[10px] uppercase tracking-[0.16em] transition-all duration-300 hover:bg-[#1A0A0D] hover:text-white"
               style={{
                 border: "0.5px solid rgba(26,10,13,0.2)",
@@ -298,7 +314,7 @@ export default function ProductCard({ product, onView, onViber }) {
               View
             </button>
             <button
-              onClick={() => onViber(product)}
+              onClick={() => onWhatsApp?.(product)}
               className="flex items-center justify-center gap-1.5 rounded py-2.5 text-[10px] uppercase tracking-[0.16em] text-white transition-opacity duration-300 hover:opacity-90"
               style={{ background: "#62101F" }}
             >

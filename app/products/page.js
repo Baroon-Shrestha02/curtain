@@ -2,11 +2,11 @@ import Products from "@/components/ProductsComopnents/Products";
 import ProductsHero from "@/components/ProductsComopnents/ProductsHero";
 import React from "react";
 
-export default function products() {
+export default function ProductsPage() {
   return (
     <div>
       <ProductsHero />
-      <Products />
+      <Products category="curtains" />
     </div>
   );
 }

@@ -1,9 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Send, ChevronDown, ArrowLeft } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ChevronDown,
+  ArrowLeft,
+  Clock,
+  ShieldCheck,
+  MessageCircle,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const WHATSAPP_NUMBER = "9779818739823"; // your WhatsApp business number (no +, no spaces)
+const BG_IMAGE = "/quote.jpg"; // atmospheric curtain / interior photo
 
 const FABRICS = [
   "Velvet",
@@ -71,7 +83,9 @@ export default function QuotePage() {
       `📐 *Window Measurements:*`,
       ...windows.map(
         (w, i) =>
-          `  ${i + 1}. ${w.room ? `${w.room} — ` : ""}W: ${w.width}" × H: ${w.height}"${w.quantity > 1 ? ` (×${w.quantity} panels)` : ""}`,
+          `  ${i + 1}. ${w.room ? `${w.room} — ` : ""}W: ${w.width}" × H: ${w.height}"${
+            w.quantity > 1 ? ` (×${w.quantity} panels)` : ""
+          }`,
       ),
       ``,
       `🎨 *Fabric:* ${fabric}`,
@@ -85,36 +99,53 @@ export default function QuotePage() {
   };
 
   const handleSend = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      // jump to the first error so the user sees what's missing
+      const firstError = document.querySelector("[data-error='true']");
+      firstError?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     const msg = encodeURIComponent(buildMessage());
-    window.open(`https://wa.me/9779818739823?text=${msg}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
   };
 
   const inputCls = (err) =>
     `w-full rounded-lg px-3.5 py-3 text-sm outline-none transition-all duration-200 ${
       err
         ? "border border-red-300 bg-red-50 focus:border-[#62101F]"
-        : "border border-[rgba(98,16,31,0.15)] bg-white focus:border-[#62101F]"
+        : "border border-[rgba(98,16,31,0.15)] bg-white focus:border-[#62101F] focus:ring-2 focus:ring-[#62101F]/10"
     }`;
 
   const labelCls =
     "block text-[10px] uppercase tracking-[0.18em] mb-1.5 font-medium";
 
   return (
-    <div className="min-h-screen" style={{ background: "#FAF8F5" }}>
+    <div className="relative min-h-screen">
+      {/* ── Background image + black overlay ── */}
+      <div
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: `url(${BG_IMAGE})` }}
+      />
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(12,7,6,0.72) 0%, rgba(12,7,6,0.80) 45%, rgba(12,7,6,0.88) 100%)",
+        }}
+      />
+
       {/* ── Top nav bar ── */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
+        className="sticky top-0 z-20 flex items-center justify-between px-6 py-4"
         style={{
-          background: "rgba(250,248,245,0.92)",
+          background: "rgba(12,7,6,0.45)",
           backdropFilter: "blur(12px)",
-          borderBottom: "0.5px solid rgba(98,16,31,0.08)",
+          borderBottom: "0.5px solid rgba(255,255,255,0.08)",
         }}
       >
         <Link
           href="/"
-          className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] transition-opacity hover:opacity-60"
-          style={{ color: "#62101F" }}
+          className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/80 transition-opacity hover:opacity-60"
         >
           <ArrowLeft size={13} />
           Back
@@ -125,48 +156,57 @@ export default function QuotePage() {
         >
           Free Quotation
         </span>
-        {/* spacer */}
         <div className="w-14" />
       </div>
 
       {/* ── Page content ── */}
-      <div className="mx-auto max-w-2xl px-5 pb-24 pt-12 sm:px-8">
-        {/* Hero heading */}
+      <div className="relative mx-auto max-w-2xl px-5 pb-24 pt-14 sm:px-8">
+        {/* Hero heading (over the image) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-12 text-center"
+          className="mb-8 text-center"
         >
           <h1
-            className="mb-3 text-4xl font-light leading-tight md:text-5xl"
+            className="mb-3 text-4xl font-medium leading-tight md:text-5xl"
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
-              color: "#1A0A0D",
+              color: "#fff",
               letterSpacing: "-0.01em",
             }}
           >
             Request a{" "}
-            <em className="not-italic" style={{ color: "#62101F" }}>
+            <em className="not-italic" style={{ color: "#E8B4A0" }}>
               Free Quote
             </em>
           </h1>
-          <p className="text-sm leading-relaxed" style={{ color: "#7A5C5C" }}>
+          <p className="mx-auto max-w-md text-sm leading-relaxed text-white/70">
             Tell us about your windows and fabric preferences — we'll reply
             within a few hours with a full price breakdown.
           </p>
+
+          {/* Trust strip */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Trust icon={<Clock size={14} />} label="Reply in hours" />
+            <Trust icon={<ShieldCheck size={14} />} label="No obligation" />
+            <Trust
+              icon={<MessageCircle size={14} />}
+              label="Sent via WhatsApp"
+            />
+          </div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          className="space-y-8"
+          className="space-y-6"
         >
-          {/* ── Section: Contact ── */}
+          {/* ── Contact ── */}
           <Section title="Your Details">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
+              <div data-error={!!errors.name}>
                 <label
                   className={labelCls}
                   style={{ color: errors.name ? "#c0392b" : "#1A0A0D" }}
@@ -175,7 +215,7 @@ export default function QuotePage() {
                 </label>
                 <input
                   className={inputCls(errors.name)}
-                  placeholder="Aarati Shrestha"
+                  placeholder="Sara Lamichhane"
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
@@ -183,7 +223,7 @@ export default function QuotePage() {
                   }}
                 />
               </div>
-              <div>
+              <div data-error={!!errors.phone}>
                 <label
                   className={labelCls}
                   style={{ color: errors.phone ? "#c0392b" : "#1A0A0D" }}
@@ -203,7 +243,7 @@ export default function QuotePage() {
             </div>
           </Section>
 
-          {/* ── Section: Windows ── */}
+          {/* ── Windows ── */}
           <Section
             title="Window Measurements"
             subtitle="inches"
@@ -223,6 +263,7 @@ export default function QuotePage() {
                 {windows.map((w, i) => (
                   <motion.div
                     key={w.id}
+                    data-error={!!errors[`win_${i}`]}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
@@ -232,7 +273,11 @@ export default function QuotePage() {
                       background: errors[`win_${i}`]
                         ? "rgba(220,38,38,0.04)"
                         : "rgba(98,16,31,0.03)",
-                      border: `0.5px solid ${errors[`win_${i}`] ? "rgba(220,38,38,0.2)" : "rgba(98,16,31,0.08)"}`,
+                      border: `0.5px solid ${
+                        errors[`win_${i}`]
+                          ? "rgba(220,38,38,0.2)"
+                          : "rgba(98,16,31,0.08)"
+                      }`,
                     }}
                   >
                     <div className="mb-3 flex items-center justify-between">
@@ -345,9 +390,9 @@ export default function QuotePage() {
             </div>
           </Section>
 
-          {/* ── Section: Fabric ── */}
+          {/* ── Fabric ── */}
           <Section title="Fabric Type" error={errors.fabric}>
-            <div className="flex flex-wrap gap-2">
+            <div data-error={!!errors.fabric} className="flex flex-wrap gap-2">
               {FABRICS.map((f) => (
                 <button
                   key={f}
@@ -360,7 +405,9 @@ export default function QuotePage() {
                     background:
                       fabric === f ? "#62101F" : "rgba(98,16,31,0.05)",
                     color: fabric === f ? "#fff" : "#62101F",
-                    border: `0.5px solid ${fabric === f ? "#62101F" : "rgba(98,16,31,0.18)"}`,
+                    border: `0.5px solid ${
+                      fabric === f ? "#62101F" : "rgba(98,16,31,0.18)"
+                    }`,
                   }}
                 >
                   {f}
@@ -374,7 +421,7 @@ export default function QuotePage() {
             )}
           </Section>
 
-          {/* ── Section: Header + Lining ── */}
+          {/* ── Header + Lining ── */}
           <Section title="Finish Details">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
@@ -432,7 +479,7 @@ export default function QuotePage() {
             </div>
           </Section>
 
-          {/* ── Section: Notes ── */}
+          {/* ── Notes ── */}
           <Section title="Design Ideas" subtitle="optional">
             <textarea
               className={inputCls(false)}
@@ -448,19 +495,17 @@ export default function QuotePage() {
           <div className="pt-2">
             <button
               onClick={handleSend}
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl py-4 text-[11px] uppercase tracking-[0.2em] text-white transition-opacity duration-200 hover:opacity-90"
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl py-4 text-[11px] uppercase tracking-[0.2em] text-white shadow-lg transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
               style={{
                 background:
                   "linear-gradient(135deg, #7A1525 0%, #62101F 60%, #4A0C18 100%)",
+                boxShadow: "0 12px 30px rgba(98,16,31,0.4)",
               }}
             >
-              <Send size={14} />
+              <MessageCircle size={15} />
               Send via WhatsApp
             </button>
-            <p
-              className="mt-3 text-center text-[10px] uppercase tracking-[0.16em]"
-              style={{ color: "#9A7070" }}
-            >
+            <p className="mt-3 text-center text-[10px] uppercase tracking-[0.16em] text-white/55">
               We&apos;ll reply within a few hours · Free quotation
             </p>
           </div>
@@ -479,6 +524,7 @@ function Section({ title, subtitle, action, error, children }) {
       style={{
         background: "#fff",
         border: `0.5px solid ${error ? "rgba(220,38,38,0.25)" : "rgba(98,16,31,0.08)"}`,
+        boxShadow: "0 18px 45px rgba(0,0,0,0.28)",
       }}
     >
       <div className="mb-4 flex items-center justify-between">
@@ -499,6 +545,15 @@ function Section({ title, subtitle, action, error, children }) {
       </div>
       {children}
     </div>
+  );
+}
+
+function Trust({ icon, label }) {
+  return (
+    <span className="flex items-center gap-1.5 text-[11px] text-white/70">
+      <span style={{ color: "#E8B4A0" }}>{icon}</span>
+      {label}
+    </span>
   );
 }
 

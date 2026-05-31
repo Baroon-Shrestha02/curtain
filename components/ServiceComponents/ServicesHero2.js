@@ -29,7 +29,7 @@ function ServiceTag({ label }) {
 }
 
 // Clipped headline word (white pill with background showing through text)
-function ClippedWord({ children, italic = true }) {
+function ClippedWord({ children, italic = false }) {
   return (
     <span
       className="relative inline-block px-3 rounded-full overflow-hidden"

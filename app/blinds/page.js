@@ -2,11 +2,11 @@ import Products from "@/components/ProductsComopnents/Products";
 import ProductsHero from "@/components/ProductsComopnents/ProductsHero";
 import React from "react";
 
-export default function Blinds() {
+export default function BlindsPage() {
   return (
     <div>
       <ProductsHero />
-      <Products />
+      <Products category="blinds" />
     </div>
   );
 }

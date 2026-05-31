@@ -1,7 +1,12 @@
 "use client";
 // components/AboutSection.jsx
-import React from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "motion/react";
+
+// 👇 Swap these two for your own files (put them in /public or use a CDN URL)
+const VIDEO_SRC = "/videos/cozy-curtains.mp4";
+const POSTER_SRC =
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=70";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 40 },
@@ -39,9 +44,14 @@ const imageScale = {
 };
 
 export default function HomeAbout() {
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const startVideo = () => videoRef.current?.play();
+
   return (
-    <section className="container mx-auto relative min-h-screen w-full bg-white overflow-hidden pt-16 px-5 sm:px-8 lg:px-12">
-      <div className="grid min-h-[80vh] grid-cols-1 lg:grid-cols-3 items-center gap-12">
+    <section className="container mx-auto relative w-full bg-white overflow-hidden px-5 sm:px-8 lg:px-12 py-16 lg:py-0 lg:pt-16 lg:min-h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-3 items-start lg:items-center gap-12 lg:min-h-[80vh]">
         {/* Left Content */}
         <div className="flex flex-col">
           <motion.p
@@ -66,42 +76,55 @@ export default function HomeAbout() {
             </motion.h2>
           ))}
 
+          {/* Video — real element, full column width */}
           <motion.div
             {...fadeUp(0.55)}
-            className="relative w-[220px] h-[135px] rounded overflow-hidden cursor-pointer group"
+            onClick={isPlaying ? undefined : startVideo}
+            className="group relative w-full aspect-[4/3] rounded-sm overflow-hidden bg-neutral-200 cursor-pointer"
           >
-            <div
-              className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500"
-              style={{
-                backgroundImage:
-                  "url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=70')",
-              }}
+            <video
+              ref={videoRef}
+              src={VIDEO_SRC}
+              poster={POSTER_SRC}
+              playsInline
+              preload="metadata"
+              controls={isPlaying}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+              className={`h-full w-full object-cover transition-all duration-500 ${
+                isPlaying ? "grayscale-0" : "grayscale group-hover:grayscale-0"
+              }`}
             />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/15 transition-colors duration-300" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                <svg
-                  className="w-3.5 h-3.5 text-white ml-0.5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                </svg>
-              </div>
-            </div>
+
+            {!isPlaying && (
+              <>
+                <div className="absolute inset-0 bg-black/35 group-hover:bg-black/15 transition-colors duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-16 h-16 rounded-full bg-white/15 border border-white/50 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                    <svg
+                      className="w-5 h-5 text-white ml-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                    </svg>
+                  </div>
+                </div>
+              </>
+            )}
           </motion.div>
 
           <motion.p
             {...fadeIn(0.7)}
             className="mt-3 text-xs leading-relaxed text-black/40"
           >
-            Crafting custom curtains for homes
+            See how each curtain is measured, stitched, and fitted —
             <br />
-            across the Kathmandu Valley.
+            crafted for homes across the Kathmandu Valley.
           </motion.p>
         </div>
 
-        {/* Center Image */}
         {/* Center Image */}
         <div className="flex justify-center">
           <motion.div
@@ -118,7 +141,7 @@ export default function HomeAbout() {
         </div>
 
         {/* Right Content */}
-        <div className="flex flex-col gap-6 max-w-[300px]">
+        <div className="flex flex-col max-w-[300px]">
           <motion.p
             {...slideRight(0.4)}
             className="text-base leading-relaxed text-black/60"
@@ -130,6 +153,8 @@ export default function HomeAbout() {
             From sheer linens to blackout drapes, every piece is tailored to
             your exact window dimensions and delivered to your door.
           </motion.p>
+
+          <motion.div {...fadeIn(0.5)} className="h-px bg-black/10 my-6" />
 
           <motion.p
             {...slideRight(0.55)}
