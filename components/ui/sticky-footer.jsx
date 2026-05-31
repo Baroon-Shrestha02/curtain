@@ -183,24 +183,12 @@ const socialLinks = [
 
 const footerLinkGroups = [
   {
-    label: "Curtain Types",
+    label: "Explore",
     links: [
-      { title: "Blackout Curtains", href: "/products/blackout-curtains" },
-      { title: "Sheer Curtains", href: "/products/sheer-curtains" },
-      { title: "Velvet Drapes", href: "/products/velvet-drapes" },
-      { title: "Jacquard Curtains", href: "/products/jacquard-curtains" },
-      { title: "Zebra Blinds", href: "/products/zebra-blinds" },
-      { title: "Roller Blinds", href: "/products/roller-blinds" },
-    ],
-  },
-  {
-    label: "Services",
-    links: [
-      { title: "Free Fabric Swatches", href: "/services/swatches" },
-      { title: "In-Home Measurement", href: "/services/measurement" },
-      { title: "Custom Stitching", href: "/services/stitching" },
-      { title: "Fitting & Installation", href: "/services/installation" },
-      { title: "Design Consultation", href: "/services/consultation" },
+      { title: "Curtains", href: "/products" },
+      { title: "Blinds", href: "/blinds" },
+      { title: "Services", href: "/services" },
+      { title: "Gallery", href: "/gallery" },
     ],
   },
   {
@@ -208,7 +196,12 @@ const footerLinkGroups = [
     links: [
       { title: "About Us", href: "/about" },
       { title: "Contact Us", href: "/contact" },
-      { title: "Our Products", href: "/products" },
+      { title: "Get a Quote", href: "/quote" },
+    ],
+  },
+  {
+    label: "Legal",
+    links: [
       { title: "Privacy Policy", href: "/privacy" },
       { title: "Terms & Conditions", href: "/terms" },
     ],
