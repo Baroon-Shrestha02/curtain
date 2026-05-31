@@ -23,7 +23,6 @@ const STEPS = [
 
 // Swap for your own atmospheric photo (a measuring or fitting shot works well)
 const BG_VIDEO = "/services/vid.mp4";
-
 const EASE = [0.22, 1, 0.36, 1];
 
 export default function ServicesMeasure() {
