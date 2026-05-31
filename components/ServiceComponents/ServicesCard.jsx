@@ -12,37 +12,37 @@ const ROOMS = [
     kicker: "For your",
     title: "Living Room",
     body: "Full-length curtains in linen or velvet add height and drama, with sheers layered underneath for flexible daytime light.",
-    video: "/videos/living-room.mp4",
+    video: "/services/one.mp4",
     poster: "/images/living-room.jpg",
   },
   {
     kicker: "For your",
     title: "Bedroom",
     body: "Blackout or dim-out linings for better sleep, with neat Roman blinds or interlined curtains for warmth and quiet.",
-    video: "/videos/bedroom.mp4",
+    video: "/services/two.mp4",
     poster: "/images/bedroom.jpg",
   },
   {
     kicker: "For your",
     title: "Kitchen",
     body: "Practical, wipe-clean roller blinds in moisture-resistant fabrics that stack neatly and stand up to daily use.",
-    video: "/videos/kitchen.mp4",
+    video: "/services/three.mp4",
     poster: "/images/kitchen.jpg",
   },
   {
     kicker: "For your",
     title: "Home Office",
     body: "Dim-out blinds that cut screen glare without darkening the room, in calm neutral tones to keep you focused.",
-    video: "/videos/home-office.mp4",
+    video: "/services/four.mp4",
     poster: "/images/home-office.jpg",
   },
-  {
-    kicker: "For your",
-    title: "Bay Windows",
-    body: "Curtains and blinds fitted to follow the angle of the bay cleanly — bent tracks or individual recess treatments.",
-    video: "/videos/bay-windows.mp4",
-    poster: "/images/bay-windows.jpg",
-  },
+  // {
+  //   kicker: "For your",
+  //   title: "Bay Windows",
+  //   body: "Curtains and blinds fitted to follow the angle of the bay cleanly — bent tracks or individual recess treatments.",
+  //   video: "/videos/bay-windows.mp4",
+  //   poster: "/images/bay-windows.jpg",
+  // },
 ];
 
 const DURATION = 6000; // ms per slide

@@ -11,7 +11,7 @@ const STEPS = [
     title: "Book a Free Home Visit",
     body: "Get in touch and we'll arrange a convenient time to visit your home. No obligation, no charge — our advisor looks at each window and helps you understand your options.",
     tag: "No obligation",
-    image: "/images/process-consultation.jpg",
+    image: "/services/img/one.jpg",
     alt: "Home consultation",
   },
   {
@@ -19,7 +19,7 @@ const STEPS = [
     title: "Choose Your Fabric & Style",
     body: "Browse our sample books in your own home and your own light. We help you select the right fabric, colour, heading style, and lining for each room.",
     tag: "In-home samples",
-    image: "/images/process-fabrics.jpg",
+    image: "/services/img/two.jpg",
     alt: "Fabric samples",
   },
   {
@@ -27,7 +27,7 @@ const STEPS = [
     title: "We Measure, Cut & Craft",
     body: "Once you're happy, we take precise measurements of every window. Your curtains or blinds are then made to order by our experienced makers.",
     tag: "2–3 weeks",
-    image: "/images/process-crafting.jpg",
+    image: "/services/img/three.jpg",
     alt: "Crafting curtains",
   },
   {
@@ -35,7 +35,7 @@ const STEPS = [
     title: "Professional Installation",
     body: "Our fitting team installs everything cleanly and securely. We hang, dress, and adjust each piece until it looks exactly right — then walk you through the care.",
     tag: "1–3 hours",
-    image: "/images/process-fitting.jpg",
+    image: "/services/img/four.jpg",
     alt: "Professional fitting",
   },
 ];

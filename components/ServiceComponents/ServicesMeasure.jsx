@@ -22,7 +22,7 @@ const STEPS = [
 ];
 
 // Swap for your own atmospheric photo (a measuring or fitting shot works well)
-const BG_IMAGE = "/images/measuring-fitting-bg.jpg";
+const BG_VIDEO = "/services/vid.mp4";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -52,10 +52,16 @@ export default function ServicesMeasure() {
           className="relative overflow-hidden rounded-[22px] bg-[#2a201c] px-6 py-14 md:px-8 md:py-14"
         >
           {/* Background image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${BG_IMAGE})` }}
-          />
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
+            <source src={BG_VIDEO} type="video/mp4" />
+          </video>
+
           {/* Dark overlay */}
           <div
             className="absolute inset-0"
