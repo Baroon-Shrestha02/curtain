@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowRight, Loader2 } from "lucide-react";
+import {
+  ArrowRight,
+  Loader2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import QuotationModal from "../ui/QuotationModal";
 import { getGallery, getGalleryCategories } from "../services/GalleryApi";
 
@@ -17,9 +23,150 @@ const spanClass = {
 
 const labelize = (s = "") => s.charAt(0).toUpperCase() + s.slice(1);
 
+// ─── Lightbox ────────────────────────────────────────────────────────────────
+function Lightbox({ images, index, onClose }) {
+  const [current, setCurrent] = useState(index);
+
+  const prev = useCallback(
+    () => setCurrent((c) => (c - 1 + images.length) % images.length),
+    [images.length],
+  );
+  const next = useCallback(
+    () => setCurrent((c) => (c + 1) % images.length),
+    [images.length],
+  );
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose, prev, next]);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const img = images[current];
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        style={{ background: "rgba(10,4,6,0.92)", backdropFilter: "blur(6px)" }}
+        onClick={onClose}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-200"
+          style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}
+        >
+          <X size={16} />
+        </button>
+
+        {/* Prev */}
+        {images.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              prev();
+            }}
+            className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/20"
+            style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+
+        {/* Image */}
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mx-16 flex max-h-[85vh] max-w-4xl flex-col items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <img
+            src={img.src}
+            alt={img.label}
+            className="max-h-[78vh] max-w-full rounded-xl object-contain shadow-2xl"
+          />
+
+          {/* Caption */}
+          <div className="mt-4 text-center">
+            {img.location && (
+              <p
+                className="text-[10px] uppercase tracking-[0.2em]"
+                style={{ color: "#C9A84C" }}
+              >
+                {img.location}
+              </p>
+            )}
+            <p
+              className="mt-1 text-base font-light text-white/90"
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+            >
+              {img.label}
+            </p>
+            {img.category && (
+              <p
+                className="mt-1 text-[10px] uppercase tracking-[0.14em]"
+                style={{ color: "#9A7070" }}
+              >
+                {labelize(img.category)}
+              </p>
+            )}
+          </div>
+
+          {/* Counter */}
+          {images.length > 1 && (
+            <p
+              className="mt-3 text-[10px] uppercase tracking-[0.18em]"
+              style={{ color: "rgba(255,255,255,0.35)" }}
+            >
+              {current + 1} / {images.length}
+            </p>
+          )}
+        </motion.div>
+
+        {/* Next */}
+        {images.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              next();
+            }}
+            className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/20"
+            style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ─── GalleryPage ─────────────────────────────────────────────────────────────
 export default function GalleryPage() {
   const [active, setActive] = useState("all");
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [lightbox, setLightbox] = useState(null); // { index: number }
 
   const [categories, setCategories] = useState([
     { id: "all", label: "All Work" },
@@ -51,7 +198,6 @@ export default function GalleryPage() {
       .then((res) => {
         if (!alive) return;
         const docs = res.data || [];
-        // Map backend shape -> the shape this UI expects.
         const mapped = docs.map((d, i) => ({
           id: d._id || i,
           src: d.image?.url || d.url || "",
@@ -132,7 +278,7 @@ export default function GalleryPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[200px] md:auto-rows-[220px]"
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[200px] md:auto-rows-[220px] grid-flow-dense"
                 >
                   {images.map((img, i) => (
                     <motion.div
@@ -144,6 +290,7 @@ export default function GalleryPage() {
                         ease: [0.22, 1, 0.36, 1],
                         delay: i * 0.05,
                       }}
+                      onClick={() => setLightbox({ index: i })}
                       className={`group relative overflow-hidden cursor-pointer ${spanClass[img.span] ?? ""}`}
                       style={{ borderRadius: "10px" }}
                     >
@@ -226,6 +373,15 @@ export default function GalleryPage() {
           </div>
         </section>
       </div>
+
+      {/* Image lightbox */}
+      {lightbox && (
+        <Lightbox
+          images={images}
+          index={lightbox.index}
+          onClose={() => setLightbox(null)}
+        />
+      )}
 
       {quoteOpen && <QuotationModal onClose={() => setQuoteOpen(false)} />}
     </>
