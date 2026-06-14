@@ -14,12 +14,22 @@ const badgeBackground = {
   Limited: "#3D2D1F",
 };
 
+const fmt = (n) =>
+  Number(n ?? 0).toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
 export default function ProductCard({ product, onView, onWhatsApp }) {
   const [wished, setWished] = useState(false);
 
   const image = product?.images?.[0]?.url ?? PLACEHOLDER_IMG;
   const hasDiscount = (product?.discount ?? 0) > 0;
   const showBadge = product?.badge && product.badge !== "None";
+
+  const displayPrice =
+    product?.discountedPricePerSqFt ?? product?.pricePerSqFt ?? 0;
+  const originalPrice = product?.pricePerSqFt ?? 0;
 
   return (
     <motion.div
@@ -46,23 +56,14 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
             className="h-full w-full object-cover"
           />
 
-          {(showBadge || product.sale) && (
+          {showBadge && (
             <div
               className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em] text-white"
               style={{
-                background:
-                  badgeBackground[product.badge] ?? "#62101F",
+                background: badgeBackground[product.badge] ?? "#62101F",
               }}
             >
-              {showBadge ? product.badge : "Sale"}
-            </div>
-          )}
-
-          {!product.inStock && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
-              <span className="text-[8px] uppercase tracking-[0.18em] text-black/65">
-                Out of stock
-              </span>
+              {product.badge}
             </div>
           )}
         </div>
@@ -100,13 +101,13 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
           </div>
 
           <div>
-            <div className="mb-2 flex items-baseline gap-1.5">
+            <div className="mb-2 flex items-baseline gap-1.5 flex-wrap">
               {hasDiscount && (
                 <span
                   className="text-[10px] line-through"
                   style={{ color: "#C4AEAD" }}
                 >
-                  Rs. {product.originalPrice?.toLocaleString()}
+                  Rs. {fmt(originalPrice)}
                 </span>
               )}
               <span
@@ -116,8 +117,9 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
                   fontFamily: "'Playfair Display', Georgia, serif",
                 }}
               >
-                Rs. {product.price?.toLocaleString()}
+                Rs. {fmt(displayPrice)}
               </span>
+              <span className="text-[9px] text-black/45">/ sq ft</span>
             </div>
 
             <div className="flex gap-1.5">
@@ -174,15 +176,14 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
 
           <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-          {(showBadge || product.sale) && (
+          {showBadge && (
             <div
               className="absolute left-3 top-3 z-10 rounded-full px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-white"
               style={{
-                background:
-                  badgeBackground[product.badge] ?? "#62101F",
+                background: badgeBackground[product.badge] ?? "#62101F",
               }}
             >
-              {showBadge ? product.badge : "Sale"}
+              {product.badge}
             </div>
           )}
 
@@ -205,14 +206,6 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
               strokeWidth={1.5}
             />
           </button>
-
-          {!product.inStock && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
-              <span className="rounded-full border border-black/15 bg-white px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black/65">
-                Out of stock
-              </span>
-            </div>
-          )}
 
           <div className="absolute bottom-0 left-0 right-0 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0">
             <button
@@ -281,13 +274,13 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
             style={{ background: "rgba(98,16,31,0.07)" }}
           />
 
-          <div className="mb-3 flex items-baseline gap-2">
+          <div className="mb-1 flex items-baseline gap-2 flex-wrap">
             {hasDiscount && (
               <span
                 className="text-[11px] line-through"
                 style={{ color: "#C4AEAD" }}
               >
-                Rs. {product.originalPrice?.toLocaleString()}
+                Rs. {fmt(originalPrice)}
               </span>
             )}
             <span
@@ -297,11 +290,18 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
                 fontFamily: "'Playfair Display', Georgia, serif",
               }}
             >
-              Rs. {product.price?.toLocaleString()}
+              Rs. {fmt(displayPrice)}
             </span>
+            <span className="text-[10px] text-black/45">/ sq ft</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          {product.minOrderQty > 1 && (
+            <p className="mb-3 text-[10px] text-black/45">
+              Min order: {product.minOrderQty} sq ft
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-2 mt-2">
             <button
               onClick={() => onView?.(product)}
               className="rounded py-2.5 text-[10px] uppercase tracking-[0.16em] transition-all duration-300 hover:bg-[#1A0A0D] hover:text-white"

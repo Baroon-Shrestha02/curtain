@@ -1,6 +1,6 @@
 import api from "./BaseApi";
 
-// GET /products?category=&subcategory=&badge=&inStock=&sale=&minPrice=&maxPrice=&sort=&order=&page=&limit=
+// GET /products?category=&subcategory=&badge=&minPrice=&maxPrice=&sort=&order=&page=&limit=
 // Returns: { success, total, page, pages, data: Product[] }
 export const getProducts = async (filters = {}) => {
   const { data } = await api.get("/products", { params: filters });
@@ -18,7 +18,20 @@ export const getProductBySlug = async (slug) => {
   return data?.data ?? null;
 };
 
-// GET /products/subcategory → { success, data: string[] }
+// GET /categories → [{ _id, name, slug, ... }]
+export const getCategories = async () => {
+  const { data } = await api.get("/categories");
+  return data?.data ?? [];
+};
+
+// GET /categories/:slug/subcategories → [{ _id, name, slug, parent }]
+export const getSubcategoriesBySlug = async (slug) => {
+  if (!slug) return [];
+  const { data } = await api.get(`/categories/${slug}/subcategories`);
+  return data?.data ?? [];
+};
+
+// Legacy: GET /products/subcategory → string[] (kept for back-compat)
 export const getSubcategories = async () => {
   const { data } = await api.get("/products/subcategory");
   return data?.data ?? [];

@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
   MessageCircle,
   Check,
-  X,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProductCard from "./ProductCard";
@@ -17,18 +18,25 @@ import ProductCard from "./ProductCard";
 // products : full product list (for "More From Our Collection")
 // onBack   : optional override for back navigation
 
+const fmt = (n) =>
+  Number(n ?? 0).toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
 export default function ProductDetail({ product, products = [], onBack }) {
   const router = useRouter();
   const [activeImage, setActiveImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const minOrder = Math.max(1, Number(product?.minOrderQty) || 1);
+  const [quantity, setQuantity] = useState(minOrder);
   const [activeColor, setActiveColor] = useState(null);
 
   useEffect(() => {
     setActiveImage(0);
-    setQuantity(1);
+    setQuantity(minOrder);
     setActiveColor(product?.colors?.[0] ?? null);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [product?._id]);
+  }, [product?._id, minOrder]);
 
   const handleBack = () => {
     if (onBack) return onBack();
@@ -58,15 +66,49 @@ export default function ProductDetail({ product, products = [], onBack }) {
     : [];
 
   const hasDiscount = product.discount > 0;
+  const unitPrice = Number(
+    product.discountedPricePerSqFt ?? product.pricePerSqFt ?? 0,
+  );
+  const originalUnitPrice = Number(product.pricePerSqFt ?? 0);
+
+  const safeQty = Math.max(minOrder, Number(quantity) || minOrder);
+  const total = useMemo(() => unitPrice * safeQty, [unitPrice, safeQty]);
+  const totalOriginal = useMemo(
+    () => originalUnitPrice * safeQty,
+    [originalUnitPrice, safeQty],
+  );
 
   const prevImage = () =>
     setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1));
   const nextImage = () =>
     setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1));
 
+  const handleQtyChange = (val) => {
+    if (val === "") {
+      setQuantity("");
+      return;
+    }
+    const n = Number(val);
+    if (!Number.isFinite(n)) return;
+    setQuantity(n);
+  };
+
+  const handleQtyBlur = () => {
+    const n = Number(quantity);
+    if (!Number.isFinite(n) || n < minOrder) setQuantity(minOrder);
+  };
+
   const handleWhatsApp = () => {
     const colorLine = activeColor ? `\nColor: ${activeColor.name}` : "";
-    const message = `Hello Cozy Curtains, I am interested in this product.\n\nProduct Name: ${product.name}\nCategory: ${product.subcategory}${colorLine}\nPrice: Rs. ${product.price}\nQuantity: ${quantity}\n\nPlease provide more details.`;
+    const message = `Hello Cozy Curtains, I am interested in this product.
+
+Product Name: ${product.name}
+Category: ${product.subcategory}${colorLine}
+Price: Rs. ${fmt(unitPrice)} / sq ft
+Quantity: ${safeQty} sq ft
+Total: Rs. ${fmt(total)}
+
+Please provide more details.`;
     const WHATSAPP_NUMBER =
       process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "977XXXXXXXXXX";
     window.open(
@@ -133,7 +175,7 @@ export default function ProductDetail({ product, products = [], onBack }) {
                 )}
 
                 {/* Badge */}
-                {product.badge && (
+                {product.badge && product.badge !== "None" && (
                   <span
                     className={`absolute left-5 top-5 rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.18em] ${
                       badgeColors[product.badge] ?? "bg-black text-white"
@@ -141,15 +183,6 @@ export default function ProductDetail({ product, products = [], onBack }) {
                   >
                     {product.badge}
                   </span>
-                )}
-
-                {/* Out of stock overlay */}
-                {!product.inStock && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px]">
-                    <span className="rounded-full border border-black/20 bg-white px-6 py-2 text-xs uppercase tracking-[0.2em] text-black/60">
-                      Out of Stock
-                    </span>
-                  </div>
                 )}
 
                 {/* Carousel arrows */}
@@ -224,34 +257,16 @@ export default function ProductDetail({ product, products = [], onBack }) {
                 {product.name}
               </h1>
 
-              {/* Stock indicator */}
-              <div className="mt-3 flex items-center gap-2">
-                <span
-                  className={`flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] ${
-                    product.inStock ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {product.inStock ? (
-                    <>
-                      <Check size={12} /> In Stock
-                    </>
-                  ) : (
-                    <>
-                      <X size={12} /> Out of Stock
-                    </>
-                  )}
-                </span>
-              </div>
-
-              {/* Price */}
-              <div className="mt-5 flex items-baseline gap-3">
+              {/* Price per sq ft */}
+              <div className="mt-5 flex items-baseline gap-3 flex-wrap">
                 <span className="text-3xl font-light text-black">
-                  Rs. {product.price.toLocaleString()}
+                  Rs. {fmt(unitPrice)}
                 </span>
+                <span className="text-sm text-black/55">/ sq ft</span>
                 {hasDiscount && (
                   <>
                     <span className="text-base text-black/35 line-through">
-                      Rs. {product.originalPrice.toLocaleString()}
+                      Rs. {fmt(originalUnitPrice)}
                     </span>
                     <span className="rounded-full bg-[#62101F]/10 px-3 py-1 text-xs font-medium text-[#62101F]">
                       {product.discount}% off
@@ -294,11 +309,12 @@ export default function ProductDetail({ product, products = [], onBack }) {
                   <div className="flex flex-wrap gap-3">
                     {product.colors.map((color) => (
                       <button
-                        key={color._id}
+                        key={color._id ?? color.hex}
                         onClick={() => setActiveColor(color)}
                         title={color.name}
                         className={`h-9 w-9 rounded-full border-2 transition-all duration-200 ${
-                          activeColor?._id === color._id
+                          activeColor?._id === color._id ||
+                          activeColor?.hex === color.hex
                             ? "border-black scale-110 shadow-md"
                             : "border-white shadow-sm hover:scale-105"
                         }`}
@@ -320,7 +336,7 @@ export default function ProductDetail({ product, products = [], onBack }) {
                       <tbody>
                         {product.specs.map((spec, i) => (
                           <tr
-                            key={spec._id}
+                            key={spec._id ?? `${spec.label}-${i}`}
                             className={
                               i % 2 === 0 ? "bg-white" : "bg-[#f7f7f5]"
                             }
@@ -339,11 +355,80 @@ export default function ProductDetail({ product, products = [], onBack }) {
                 </div>
               )}
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              {/* ── QUANTITY + TOTAL ── */}
+              <div className="mt-8 rounded-[1.5rem] border border-black/10 bg-white p-5">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-black/45">
+                      Quantity (sq ft)
+                    </p>
+                    {minOrder > 1 && (
+                      <p className="mt-1 text-[11px] text-black/40">
+                        Minimum order: {minOrder} sq ft
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center rounded-full border border-black/15 bg-[#f7f7f5]">
+                    <button
+                      onClick={() =>
+                        setQuantity((q) =>
+                          Math.max(minOrder, (Number(q) || minOrder) - 1),
+                        )
+                      }
+                      className="flex h-10 w-10 items-center justify-center text-black/60 hover:text-black"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={minOrder}
+                      step="0.5"
+                      value={quantity}
+                      onChange={(e) => handleQtyChange(e.target.value)}
+                      onBlur={handleQtyBlur}
+                      className="h-10 w-20 bg-transparent text-center text-sm outline-none"
+                    />
+                    <button
+                      onClick={() =>
+                        setQuantity((q) => (Number(q) || minOrder) + 1)
+                      }
+                      className="flex h-10 w-10 items-center justify-center text-black/60 hover:text-black"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5 border-t border-black/10 pt-4">
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-black/50">
+                    <span>
+                      {safeQty} sq ft × Rs. {fmt(unitPrice)}
+                    </span>
+                    {hasDiscount && (
+                      <span className="line-through text-black/30">
+                        Rs. {fmt(totalOriginal)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <span className="text-xs uppercase tracking-[0.22em] text-black/50">
+                      Total
+                    </span>
+                    <span className="text-2xl font-light text-[#62101F]">
+                      Rs. {fmt(total)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4">
                 <button
                   onClick={handleWhatsApp}
-                  disabled={!product.inStock}
-                  className="flex flex-1 items-center justify-center gap-3 rounded-full bg-black px-8 py-4 text-xs uppercase tracking-[0.2em] text-white transition-all duration-300 hover:bg-[#62101F] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-1 items-center justify-center gap-3 rounded-full bg-black px-8 py-4 text-xs uppercase tracking-[0.2em] text-white transition-all duration-300 hover:bg-[#62101F]"
                 >
                   <MessageCircle size={16} />
                   Enquire on WhatsApp
@@ -393,10 +478,12 @@ export default function ProductDetail({ product, products = [], onBack }) {
                     router.push(prod.href ?? `/products/${prod.slug}`)
                   }
                   onWhatsApp={(prod) => {
+                    const price =
+                      prod.discountedPricePerSqFt ?? prod.pricePerSqFt ?? 0;
                     const WHATSAPP_NUMBER =
                       process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ??
                       "977XXXXXXXXXX";
-                    const msg = `Hello Cozy Curtains, I am interested in ${prod.name} (Rs. ${prod.price}). Please provide more details.`;
+                    const msg = `Hello Cozy Curtains, I am interested in ${prod.name} (Rs. ${fmt(price)} / sq ft). Please provide more details.`;
                     window.open(
                       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,
                       "_blank",

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import ProductCard from "./Products/ProductCard";
 import {
   getProducts,
-  getSubcategories,
+  getCategories,
+  getSubcategoriesBySlug,
 } from "../services/ProductsApi";
 
 const WHATSAPP_NUMBER =
@@ -16,31 +17,45 @@ const BADGES = ["New", "Bestseller", "Sale", "Limited"];
 
 const SORT_OPTIONS = {
   newest: { sort: "createdAt", order: "desc", label: "Newest" },
-  "low-high": { sort: "price", order: "asc", label: "Price: Low to High" },
-  "high-low": { sort: "price", order: "desc", label: "Price: High to Low" },
+  "low-high": {
+    sort: "discountedPricePerSqFt",
+    order: "asc",
+    label: "Price: Low to High",
+  },
+  "high-low": {
+    sort: "discountedPricePerSqFt",
+    order: "desc",
+    label: "Price: High to Low",
+  },
   discount: { sort: "discount", order: "desc", label: "Best Discount" },
 };
 
-const COPY = {
-  curtains: {
-    eyebrow: "Our Collection",
-    title: "Explore Our Premium Curtains",
-    subtitle:
-      "Browse premium curtain collections, filter by style, search by product name, and request details on WhatsApp.",
-    searchPlaceholder: "Search curtain, blackout, jacquard...",
-  },
-  blinds: {
-    eyebrow: "Our Collection",
-    title: "Explore Our Premium Blinds",
-    subtitle:
-      "Browse premium blind collections, filter by style, search by product name, and request details on WhatsApp.",
-    searchPlaceholder: "Search blinds, roller, venetian...",
-  },
+const COPY_DEFAULT = {
+  eyebrow: "Our Collection",
+  title: "Explore Our Premium Collection",
+  subtitle:
+    "Browse premium collections, filter by style, search by product name, and request details on WhatsApp.",
+  searchPlaceholder: "Search products...",
 };
 
-export default function Products({ category = "curtains" }) {
+const buildCopy = (categoryName) => {
+  if (!categoryName) return COPY_DEFAULT;
+  const display =
+    categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
+  return {
+    eyebrow: "Our Collection",
+    title: `Explore Our Premium ${display}`,
+    subtitle: `Browse premium ${display.toLowerCase()} collections, filter by style, search by product name, and request details on WhatsApp.`,
+    searchPlaceholder: `Search ${display.toLowerCase()}…`,
+  };
+};
+
+export default function Products({ category = "" }) {
   const router = useRouter();
-  const copy = COPY[category] ?? COPY.curtains;
+
+  // ── Resolve category: prop may be slug, name, or empty (= all).
+  const [resolvedCategoryName, setResolvedCategoryName] = useState("");
+  const [resolvedCategorySlug, setResolvedCategorySlug] = useState("");
 
   // ── Filter state ─────────────────────────────────────────────────────────
   const [activeSubcategory, setActiveSubcategory] = useState("All");
@@ -49,8 +64,6 @@ export default function Products({ category = "curtains" }) {
   const [sortBy, setSortBy] = useState("newest");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [saleOnly, setSaleOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   // ── Data state ───────────────────────────────────────────────────────────
@@ -60,17 +73,61 @@ export default function Products({ category = "curtains" }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Reset selected subcategory when switching pages (curtains <-> blinds)
-  useEffect(() => {
-    setActiveSubcategory("All");
-  }, [category]);
+  const copy = useMemo(
+    () => buildCopy(resolvedCategoryName),
+    [resolvedCategoryName],
+  );
 
-  // Load subcategories once (or whenever category changes)
+  // Resolve the prop against backend categories so we always have the canonical name.
   useEffect(() => {
     let cancelled = false;
-    getSubcategories()
+    const propLower = (category || "").trim().toLowerCase();
+
+    getCategories()
+      .then((cats) => {
+        if (cancelled) return;
+        if (!propLower) {
+          setResolvedCategoryName("");
+          setResolvedCategorySlug("");
+          return;
+        }
+        const match = cats.find(
+          (c) =>
+            c.slug?.toLowerCase() === propLower ||
+            c.name?.toLowerCase() === propLower,
+        );
+        setResolvedCategoryName(match?.name || propLower);
+        setResolvedCategorySlug(match?.slug || propLower);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setResolvedCategoryName(propLower);
+        setResolvedCategorySlug(propLower);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [category]);
+
+  // Reset selected subcategory when switching categories
+  useEffect(() => {
+    setActiveSubcategory("All");
+  }, [resolvedCategorySlug]);
+
+  // Load subcategories scoped to the selected category
+  useEffect(() => {
+    let cancelled = false;
+    if (!resolvedCategorySlug) {
+      setSubcategories([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+    getSubcategoriesBySlug(resolvedCategorySlug)
       .then((subs) => {
-        if (!cancelled) setSubcategories(subs);
+        if (!cancelled)
+          setSubcategories(subs.map((s) => s.name || s).filter(Boolean));
       })
       .catch(() => {
         if (!cancelled) setSubcategories([]);
@@ -78,7 +135,7 @@ export default function Products({ category = "curtains" }) {
     return () => {
       cancelled = true;
     };
-  }, [category]);
+  }, [resolvedCategorySlug]);
 
   // Debounced price values so typing doesn't spam the backend
   const debouncedMinPrice = useDebounce(minPrice, 350);
@@ -93,18 +150,16 @@ export default function Products({ category = "curtains" }) {
     const { sort, order } = SORT_OPTIONS[sortBy] ?? SORT_OPTIONS.newest;
 
     const params = {
-      category,
       sort,
       order,
       limit: 60,
     };
 
+    if (resolvedCategoryName) params.category = resolvedCategoryName;
     if (activeSubcategory !== "All") params.subcategory = activeSubcategory;
     if (activeBadge !== "All") params.badge = activeBadge;
     if (debouncedMinPrice) params.minPrice = Number(debouncedMinPrice);
     if (debouncedMaxPrice) params.maxPrice = Number(debouncedMaxPrice);
-    if (inStockOnly) params.inStock = true;
-    if (saleOnly) params.sale = true;
 
     getProducts(params)
       .then(({ products, total }) => {
@@ -126,14 +181,12 @@ export default function Products({ category = "curtains" }) {
       cancelled = true;
     };
   }, [
-    category,
+    resolvedCategoryName,
     activeSubcategory,
     activeBadge,
     sortBy,
     debouncedMinPrice,
     debouncedMaxPrice,
-    inStockOnly,
-    saleOnly,
   ]);
 
   // Client-side search (backend has no text-search endpoint)
@@ -154,7 +207,9 @@ export default function Products({ category = "curtains" }) {
   };
 
   const handleWhatsApp = (product) => {
-    const message = `Hello Cozy Curtains, I am interested in this product.\n\nProduct Name: ${product.name}\nCategory: ${product.subcategory}\nPrice: Rs. ${product.price}\n\nPlease provide more details.`;
+    const price =
+      product.discountedPricePerSqFt ?? product.pricePerSqFt ?? 0;
+    const message = `Hello Cozy Curtains, I am interested in this product.\n\nProduct Name: ${product.name}\nCategory: ${product.subcategory}\nPrice: Rs. ${Number(price).toLocaleString()} / sq ft\n\nPlease provide more details.`;
     window.open(
       `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
       "_blank",
@@ -168,17 +223,13 @@ export default function Products({ category = "curtains" }) {
     setSortBy("newest");
     setMinPrice("");
     setMaxPrice("");
-    setInStockOnly(false);
-    setSaleOnly(false);
   };
 
   const activeFilterCount =
     (activeSubcategory !== "All" ? 1 : 0) +
     (activeBadge !== "All" ? 1 : 0) +
     (minPrice ? 1 : 0) +
-    (maxPrice ? 1 : 0) +
-    (inStockOnly ? 1 : 0) +
-    (saleOnly ? 1 : 0);
+    (maxPrice ? 1 : 0);
 
   return (
     <section className="bg-[#f7f7f5] px-5 py-20 md:px-10 lg:px-16">
@@ -264,25 +315,27 @@ export default function Products({ category = "curtains" }) {
               </div>
 
               {/* Subcategory */}
-              <FilterGroup label="Subcategory">
-                <div className="flex flex-wrap gap-3">
-                  <Chip
-                    active={activeSubcategory === "All"}
-                    onClick={() => setActiveSubcategory("All")}
-                  >
-                    All
-                  </Chip>
-                  {subcategories.map((sub) => (
+              {subcategories.length > 0 && (
+                <FilterGroup label="Subcategory">
+                  <div className="flex flex-wrap gap-3">
                     <Chip
-                      key={sub}
-                      active={activeSubcategory === sub}
-                      onClick={() => setActiveSubcategory(sub)}
+                      active={activeSubcategory === "All"}
+                      onClick={() => setActiveSubcategory("All")}
                     >
-                      {sub}
+                      All
                     </Chip>
-                  ))}
-                </div>
-              </FilterGroup>
+                    {subcategories.map((sub) => (
+                      <Chip
+                        key={sub}
+                        active={activeSubcategory === sub}
+                        onClick={() => setActiveSubcategory(sub)}
+                      >
+                        {sub}
+                      </Chip>
+                    ))}
+                  </div>
+                </FilterGroup>
+              )}
 
               {/* Badge */}
               <FilterGroup label="Badge">
@@ -306,7 +359,7 @@ export default function Products({ category = "curtains" }) {
               </FilterGroup>
 
               {/* Price */}
-              <FilterGroup label="Price (Rs.)">
+              <FilterGroup label="Price / sq ft (Rs.)">
                 <div className="flex flex-wrap items-center gap-3">
                   <PriceInput
                     placeholder="Min"
@@ -319,24 +372,6 @@ export default function Products({ category = "curtains" }) {
                     value={maxPrice}
                     onChange={setMaxPrice}
                   />
-                </div>
-              </FilterGroup>
-
-              {/* Toggles */}
-              <FilterGroup label="Availability">
-                <div className="flex flex-wrap gap-3">
-                  <Chip
-                    active={inStockOnly}
-                    onClick={() => setInStockOnly((v) => !v)}
-                  >
-                    In Stock Only
-                  </Chip>
-                  <Chip
-                    active={saleOnly}
-                    onClick={() => setSaleOnly((v) => !v)}
-                  >
-                    On Sale Only
-                  </Chip>
                 </div>
               </FilterGroup>
             </div>
@@ -452,7 +487,7 @@ function ErrorState({ onRetry }) {
   return (
     <div className="rounded-[1.5rem] border border-red-200 bg-red-50 px-6 py-20 text-center">
       <h3 className="text-2xl font-light text-[#62101F]">
-        Couldn't load products
+        Couldn&apos;t load products
       </h3>
       <p className="mt-3 text-sm text-black/55">
         Please check your connection and try again.
@@ -461,7 +496,7 @@ function ErrorState({ onRetry }) {
         onClick={onRetry}
         className="mt-6 rounded-full bg-[#62101F] px-8 py-4 text-xs uppercase tracking-[0.2em] text-white"
       >
-        Reset & Retry
+        Reset &amp; Retry
       </button>
     </div>
   );

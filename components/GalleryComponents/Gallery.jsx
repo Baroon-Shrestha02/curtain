@@ -8,6 +8,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Play,
 } from "lucide-react";
 import QuotationModal from "../ui/QuotationModal";
 import { getGallery, getGalleryCategories } from "../services/GalleryApi";
@@ -91,7 +92,7 @@ function Lightbox({ images, index, onClose }) {
           </button>
         )}
 
-        {/* Image */}
+        {/* Media */}
         <motion.div
           key={current}
           initial={{ opacity: 0, scale: 0.96 }}
@@ -101,11 +102,22 @@ function Lightbox({ images, index, onClose }) {
           className="relative mx-16 flex max-h-[85vh] max-w-4xl flex-col items-center"
           onClick={(e) => e.stopPropagation()}
         >
-          <img
-            src={img.src}
-            alt={img.label}
-            className="max-h-[78vh] max-w-full rounded-xl object-contain shadow-2xl"
-          />
+          {img.type === "video" ? (
+            <video
+              src={img.src}
+              controls
+              autoPlay
+              loop
+              playsInline
+              className="max-h-[78vh] max-w-full rounded-xl object-contain shadow-2xl"
+            />
+          ) : (
+            <img
+              src={img.src}
+              alt={img.label}
+              className="max-h-[78vh] max-w-full rounded-xl object-contain shadow-2xl"
+            />
+          )}
 
           {/* Caption */}
           <div className="mt-4 text-center">
@@ -189,7 +201,7 @@ export default function GalleryPage() {
     };
   }, []);
 
-  // Fetch images whenever the active filter changes (server-side filtering).
+  // Fetch media whenever the active filter changes (server-side filtering).
   useEffect(() => {
     let alive = true;
     setLoading(true);
@@ -198,14 +210,18 @@ export default function GalleryPage() {
       .then((res) => {
         if (!alive) return;
         const docs = res.data || [];
-        const mapped = docs.map((d, i) => ({
-          id: d._id || i,
-          src: d.image?.url || d.url || "",
-          category: d.category || "",
-          label: d.alt || "Untitled",
-          location: d.location || "",
-          span: SPANS[i % SPANS.length],
-        }));
+        const mapped = docs.map((d, i) => {
+          const m = d.media || d.image || {}; // handles both old + new records
+          return {
+            id: d._id || i,
+            src: m.url || d.url || "",
+            type: m.type || "image", // "image" | "video"
+            category: d.category || "",
+            label: d.alt || "Untitled",
+            location: d.location || "",
+            span: SPANS[i % SPANS.length],
+          };
+        });
         setImages(mapped);
       })
       .catch(() => alive && setImages([]))
@@ -226,31 +242,55 @@ export default function GalleryPage() {
         >
           <div className="max-w-7xl mx-auto">
             {/* Category filter */}
+            {/* Category filter — "All Work" fixed, rest scroll horizontally */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-10 flex flex-wrap items-center gap-2 border-b pb-8"
+              className="mb-10 flex items-center gap-2 border-b pb-8"
               style={{ borderColor: "rgba(98,16,31,0.08)" }}
             >
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActive(cat.id)}
-                  className="rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-all duration-300"
-                  style={{
-                    background: active === cat.id ? "#62101F" : "transparent",
-                    color: active === cat.id ? "#fff" : "#9A7070",
-                    border: `0.5px solid ${active === cat.id ? "#62101F" : "rgba(98,16,31,0.18)"}`,
-                  }}
-                >
-                  {cat.label}
-                </button>
-              ))}
+              {/* Fixed: All Work */}
+              <button
+                onClick={() => setActive("all")}
+                className="flex-shrink-0 rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-all duration-300"
+                style={{
+                  background: active === "all" ? "#62101F" : "transparent",
+                  color: active === "all" ? "#fff" : "#9A7070",
+                  border: `0.5px solid ${active === "all" ? "#62101F" : "rgba(98,16,31,0.18)"}`,
+                }}
+              >
+                All Work
+              </button>
 
+              {/* Scrollable: other categories */}
+              <div
+                className="flex min-w-0 flex-1 gap-2 overflow-x-auto"
+                style={{ scrollbarWidth: "none" }}
+              >
+                {categories
+                  .filter((cat) => cat.id !== "all")
+                  .map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActive(cat.id)}
+                      className="flex-shrink-0 rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.18em] transition-all duration-300"
+                      style={{
+                        background:
+                          active === cat.id ? "#62101F" : "transparent",
+                        color: active === cat.id ? "#fff" : "#9A7070",
+                        border: `0.5px solid ${active === cat.id ? "#62101F" : "rgba(98,16,31,0.18)"}`,
+                      }}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+              </div>
+
+              {/* Projects count */}
               <span
-                className="ml-auto text-[10px] uppercase tracking-[0.18em]"
+                className="flex-shrink-0 text-[10px] uppercase tracking-[0.18em]"
                 style={{ color: "#C9A84C" }}
               >
                 {images.length} projects
@@ -294,11 +334,42 @@ export default function GalleryPage() {
                       className={`group relative overflow-hidden cursor-pointer ${spanClass[img.span] ?? ""}`}
                       style={{ borderRadius: "10px" }}
                     >
-                      <img
-                        src={img.src}
-                        alt={img.label}
-                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-                      />
+                      {img.type === "video" ? (
+                        <video
+                          src={img.src}
+                          muted
+                          loop
+                          playsInline
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                          }}
+                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                        />
+                      ) : (
+                        <img
+                          src={img.src}
+                          alt={img.label}
+                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                        />
+                      )}
+
+                      {/* Play icon for videos */}
+                      {img.type === "video" && (
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0">
+                          <div
+                            className="flex h-12 w-12 items-center justify-center rounded-full"
+                            style={{ background: "rgba(255,255,255,0.85)" }}
+                          >
+                            <Play
+                              size={18}
+                              style={{ color: "#62101F", marginLeft: 2 }}
+                              fill="#62101F"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       <div
                         className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
@@ -374,7 +445,7 @@ export default function GalleryPage() {
         </section>
       </div>
 
-      {/* Image lightbox */}
+      {/* Media lightbox */}
       {lightbox && (
         <Lightbox
           images={images}
