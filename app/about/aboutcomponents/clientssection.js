@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, Quote, LayoutGrid, ArrowLeft } from "lucide-react";
 
-const ACCENT = "#E01522";
+const ACCENT = "#62101F";
 
 function cn(...inputs) {
   return inputs.filter(Boolean).join(" ");
@@ -178,68 +178,68 @@ function HeadingTile({
 }
 
 export default function ClientsSection({
-  tagLabel = "Client voices",
-  title = "Trusted by teams we build for",
-  description = "Real feedback from the businesses we've shipped websites, apps, and security work for.",
+  tagLabel = "Voices of Trust",
+  title = "What Our Clients Say",
+  description = "Authentic perspectives from patrons who entrusted us to turn basic room layouts into curated sanctuaries of tailored light control.",
   stats = [
-    { value: "120+", label: "Projects delivered" },
-    { value: "98%", label: "Client satisfaction" },
-    { value: "6+", label: "Years building" },
+    { value: "320+", label: "Homes Styled" },
+    { value: "95%", label: "Satisfaction" },
+    { value: "7+", label: "Years Crafting" },
   ],
   testimonials = [
     {
       name: "Siddharth Thapa",
-      title: "Founder, GharSewa Nepal",
+      title: "Baluwatar Residency",
       quote:
-        "They rebuilt our platform end to end and the performance gains were immediate. Communication was clear at every stage and deadlines were actually met.",
+        "The structural precision is unbelievable. Every drop-panel alignment is perfect to the millimeter, and their light sheers completely changed how evening sun spills into our lounge.",
       avatarSrc:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
-      rating: 5.0,
+      rating: 4.9,
     },
     {
       name: "Pooja Shrestha",
-      title: "Director, Abhiyan Consultancy",
+      title: "Jhamsikhel Penthouse",
       quote:
-        "The new site made it far easier for students to find courses and reach us. Inquiries went up within the first month of launch.",
+        "We wanted custom tracks instead of mass-produced layouts. The artisan fabrication on our high drapery is true craftsmanship — beautifully weighted and quiet.",
       avatarSrc:
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
-      rating: 4.9,
-    },
-    {
-      name: "Rohan Adhikari",
-      title: "CTO, Sajilo Hardware",
-      quote:
-        "Their penetration test surfaced issues our last audit missed, with a clear remediation plan we could actually act on. Genuinely thorough work.",
-      avatarSrc:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
       rating: 5.0,
     },
     {
-      name: "Anjali Sharma",
-      title: "Owner, Vaishno Jewellers",
+      name: "Rohan Adhikari",
+      title: "Budhanilkantha Villa",
       quote:
-        "From design to deployment everything felt considered. The store looks premium and finally works flawlessly on mobile.",
+        "Absolute luxury from start to finish. From the laser-exact tracking to the imported linen selection, they treated our space like a genuine design canvas.",
+      avatarSrc:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+      rating: 4.9,
+    },
+    {
+      name: "Anjali Sharma",
+      title: "Sanepa Apartment Flats",
+      quote:
+        "The motorized track synchronization completely changed our mornings. Scheduling the drapes with the sun shows a real master-level touch.",
       avatarSrc:
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
-      rating: 4.8,
+      rating: 5.0,
     },
     {
       name: "Niranjan Basnet",
-      title: "Manager, Bajra Books",
+      title: "Pokhara Lakeside Estate",
       quote:
-        "Reliable, responsive, and easy to work with. They handled a tricky migration without a single day of downtime.",
+        "Large openings facing heavy mountain crosswinds need real fabric expertise. Their material layering eliminated glare without choking the panoramic view.",
       avatarSrc:
         "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
-      rating: 4.7,
+      rating: 4.6,
     },
     {
       name: "Deepa Rai",
-      title: "Lead, Humans for Humanity",
+      title: "Lazimpat Commercial Studio",
       quote:
-        "Our campaigns finally have a home that does them justice. The team understood our mission and translated it into a clean, fast site.",
+        "Flawless commercial-scale light calibration. Every framing layout works beautifully and aligns perfectly with our clean design guidelines.",
       avatarSrc:
         "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      rating: 4.9,
+      rating: 4.5,
     },
   ],
 }) {

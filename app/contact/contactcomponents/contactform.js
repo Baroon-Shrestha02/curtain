@@ -301,21 +301,6 @@ ${formData.message || "—"}`;
               />
             </div>
 
-            {/* Live preview bubble */}
-            <div className="rounded-xl border border-gray-200 bg-white p-3">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                Preview — this is what we&apos;ll receive
-              </p>
-              <div
-                className="max-w-[90%] rounded-2xl rounded-tl-sm px-4 py-3 text-[13px] leading-relaxed text-gray-800"
-                style={{ background: "#DCF8C6" }}
-              >
-                <pre className="whitespace-pre-wrap font-sans">
-                  {buildMessage()}
-                </pre>
-              </div>
-            </div>
-
             <button
               type="submit"
               className="flex w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm transition-all duration-300 active:scale-[0.99]"
