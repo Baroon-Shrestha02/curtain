@@ -13,7 +13,6 @@ import {
   Phone,
   Quote,
   Ruler,
-  Search,
   X,
 } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
@@ -40,63 +39,16 @@ const quickLinks = [
 
 export default function Navbar() {
   const { phones, socials } = useSiteSettings();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
 
-  const searchRef = useRef(null);
-  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [currentCategoryParam, setCurrentCategoryParam] = useState("");
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const update = () => {
-      const params = new URLSearchParams(window.location.search);
-      setCurrentCategoryParam(params.get("category") || "");
-    };
-    update();
-    window.addEventListener("popstate", update);
-    return () => window.removeEventListener("popstate", update);
-  }, [pathname]);
-
-  const navLinks = NAV_LINKS;
-
-  const categoryLinks = React.useMemo(
-    () =>
-      categories.map((c) => {
-        const slug = c.slug || c.name;
-        return {
-          label: capitalize(c.name),
-          slug,
-          to: `/products/category/${encodeURIComponent(slug)}`,
-        };
-      }),
-    [categories],
-  );
+  const pathname = usePathname();
 
   const [productsOpen, setProductsOpen] = useState(false);
   const [stickyProductsOpen, setStickyProductsOpen] = useState(false);
   const [mobileProductsExpanded, setMobileProductsExpanded] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    const load = () => {
-      getCategories()
-        .then((list) => {
-          if (active) setCategories(Array.isArray(list) ? list : []);
-        })
-        .catch(() => {
-          if (active) setCategories([]);
-        });
-    };
-    load();
-    const onFocus = () => load();
-    window.addEventListener("focus", onFocus);
-    return () => {
-      active = false;
-      window.removeEventListener("focus", onFocus);
-    };
-  }, []);
 
   const topBarRef = useRef(null);
   const brandBarRef = useRef(null);
@@ -109,36 +61,100 @@ export default function Navbar() {
   const stickyLogoRef = useRef(null);
   const headerRef = useRef(null);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const update = () => {
+      const params = new URLSearchParams(window.location.search);
+      setCurrentCategoryParam(params.get("category") || "");
+    };
+
+    update();
+
+    window.addEventListener("popstate", update);
+
+    return () => window.removeEventListener("popstate", update);
+  }, [pathname]);
+
+  const categoryLinks = React.useMemo(
+    () =>
+      categories.map((c) => {
+        const slug = c.slug || c.name;
+
+        return {
+          label: capitalize(c.name),
+          slug,
+          to: `/products/category/${encodeURIComponent(slug)}`,
+        };
+      }),
+    [categories],
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    const load = () => {
+      getCategories()
+        .then((list) => {
+          if (active) {
+            setCategories(Array.isArray(list) ? list : []);
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setCategories([]);
+          }
+        });
+    };
+
+    load();
+
+    const onFocus = () => load();
+
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      active = false;
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+
   const isActive = (to) => {
     if (to.startsWith("/products/category/")) {
       return decodeURIComponent(pathname || "") === decodeURIComponent(to);
     }
+
     if (to === "/products") {
       return pathname?.startsWith("/products");
     }
+
     return pathname === to;
   };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
       tl.fromTo(
         topBarRef.current,
         { y: -20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5 },
       );
+
       tl.fromTo(
         brandBarRef.current,
         { y: -14, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5 },
         "-=0.28",
       );
+
       tl.fromTo(
         logoRef.current,
         { x: -16, opacity: 0 },
         { x: 0, opacity: 1, duration: 0.5 },
         "-=0.3",
       );
+
       if (iconsRef.current?.children) {
         tl.fromTo(
           [...iconsRef.current.children],
@@ -147,6 +163,7 @@ export default function Navbar() {
           "-=0.35",
         );
       }
+
       if (navLinksRef.current) {
         tl.fromTo(
           [...navLinksRef.current.querySelectorAll("li")],
@@ -156,17 +173,22 @@ export default function Navbar() {
         );
       }
     });
+
     return () => ctx.revert();
   }, []);
 
   useEffect(() => {
-    if (!stickyNavRef.current || !stickyLogoRef.current || !headerRef.current)
+    if (!stickyNavRef.current || !stickyLogoRef.current || !headerRef.current) {
       return;
+    }
+
     gsap.set(stickyNavRef.current, { y: -60, opacity: 0 });
     gsap.set(stickyLogoRef.current, { x: -40, opacity: 0 });
+
     const trigger = ScrollTrigger.create({
       trigger: headerRef.current,
       start: "bottom top",
+
       onEnter: () => {
         gsap.to(stickyNavRef.current, {
           y: 0,
@@ -174,6 +196,7 @@ export default function Navbar() {
           duration: 0.38,
           ease: "power3.out",
         });
+
         gsap.to(stickyLogoRef.current, {
           x: 0,
           opacity: 1,
@@ -182,6 +205,7 @@ export default function Navbar() {
           delay: 0.12,
         });
       },
+
       onLeaveBack: () => {
         gsap.to(stickyLogoRef.current, {
           x: -40,
@@ -189,6 +213,7 @@ export default function Navbar() {
           duration: 0.25,
           ease: "power2.in",
         });
+
         gsap.to(stickyNavRef.current, {
           y: -60,
           opacity: 0,
@@ -198,17 +223,20 @@ export default function Navbar() {
         });
       },
     });
+
     return () => trigger.kill();
   }, []);
 
   useEffect(() => {
     if (!sidebarRef.current) return;
+
     if (menuOpen) {
       gsap.fromTo(
         sidebarRef.current,
         { x: "100%" },
         { x: "0%", duration: 0.38, ease: "power3.out" },
       );
+
       gsap.fromTo(
         sidebarLinksRef.current.filter(Boolean),
         { x: 24, opacity: 0 },
@@ -232,23 +260,15 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
-    setSearchOpen(false);
     setProductsOpen(false);
     setStickyProductsOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!menuOpen) setMobileProductsExpanded(false);
+    if (!menuOpen) {
+      setMobileProductsExpanded(false);
+    }
   }, [menuOpen]);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target))
-        setSearchOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   return (
     <>
@@ -288,7 +308,9 @@ export default function Navbar() {
                     {q.label}
                   </Link>
                 ))}
+
                 <span className="h-3 w-px bg-white/25" />
+
                 <div className="flex items-center gap-3">
                   {socials?.instagram && (
                     <a
@@ -301,6 +323,7 @@ export default function Navbar() {
                       <FaInstagram size={14} />
                     </a>
                   )}
+
                   {socials?.facebook && (
                     <a
                       href={socials.facebook}
@@ -349,10 +372,12 @@ export default function Navbar() {
                     className="hidden lg:flex items-center gap-2.5 text-[#6B5D52]"
                   >
                     <Phone size={18} className="text-[#62101F]" />
+
                     <div className="leading-tight">
                       <div className="text-[9px] uppercase tracking-[0.16em] text-[#A8978A]">
                         Call us
                       </div>
+
                       <div className="text-[12px] flex flex-col">
                         {phones.map((p) => (
                           <span key={p}>+977 {p}</span>
@@ -377,6 +402,7 @@ export default function Navbar() {
                   <Quote size={11} />
                   Quote
                 </Link>
+
                 <button
                   onClick={() => setMenuOpen(true)}
                   aria-label="Open menu"
@@ -390,14 +416,13 @@ export default function Navbar() {
         </div>
 
         {/* ===== LAYER 3 — BOTTOM PRIMARY NAV ===== */}
-        {/* z-[60] so it sits above the sticky nav (z-[55]) and dropdowns render above everything */}
         <nav className="hidden md:block bg-[#FFFDFB] border-b border-[#E7DED5] relative z-[60]">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
             <ul
               ref={navLinksRef}
               className="flex items-center justify-center gap-2 lg:gap-3 h-[56px]"
             >
-              {navLinks.map((link) =>
+              {NAV_LINKS.map((link) =>
                 link.dropdown ? (
                   <DesktopProductsDropdown
                     key={link.to}
@@ -429,7 +454,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ===== STICKY NAV — z-[55] so it sits below the static nav's dropdowns ===== */}
+      {/* ===== STICKY NAV ===== */}
       <div
         ref={stickyNavRef}
         className="fixed top-0 left-0 right-0 z-[55] hidden md:block"
@@ -452,7 +477,7 @@ export default function Navbar() {
               </Link>
 
               <ul className="flex items-center justify-center gap-2 lg:gap-3 w-full">
-                {navLinks.map((link) =>
+                {NAV_LINKS.map((link) =>
                   link.dropdown ? (
                     <DesktopProductsDropdown
                       key={link.to}
@@ -507,6 +532,7 @@ export default function Navbar() {
               Premium Curtains
             </p>
           </div>
+
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
@@ -517,11 +543,13 @@ export default function Navbar() {
         </div>
 
         <div className="flex flex-col px-5 py-3">
-          {navLinks.map((link, i) =>
+          {NAV_LINKS.map((link, i) =>
             link.dropdown ? (
               <div
                 key={link.to}
-                ref={(el) => (sidebarLinksRef.current[i] = el)}
+                ref={(el) => {
+                  sidebarLinksRef.current[i] = el;
+                }}
                 className="border-b border-[#EFE6DC]"
               >
                 <button
@@ -534,6 +562,7 @@ export default function Navbar() {
                   }`}
                 >
                   <span>{link.label}</span>
+
                   <ChevronDown
                     size={14}
                     className={`text-[#C9B8A8] transition-transform ${
@@ -541,6 +570,7 @@ export default function Navbar() {
                     }`}
                   />
                 </button>
+
                 {mobileProductsExpanded && (
                   <div className="pb-3 max-h-[260px] overflow-y-auto">
                     <Link
@@ -555,11 +585,13 @@ export default function Navbar() {
                       All Products
                       <ChevronRight size={12} className="text-[#C9B8A8]" />
                     </Link>
+
                     {categoryLinks.length === 0 && (
                       <div className="px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-[#C9B8A8]">
                         Loading…
                       </div>
                     )}
+
                     {categoryLinks.map((c) => (
                       <Link
                         key={c.to}
@@ -582,7 +614,9 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 href={link.to}
-                ref={(el) => (sidebarLinksRef.current[i] = el)}
+                ref={(el) => {
+                  sidebarLinksRef.current[i] = el;
+                }}
                 onClick={() => setMenuOpen(false)}
                 className={`flex items-center justify-between h-[56px] px-2 border-b border-[#EFE6DC] uppercase tracking-[0.2em] text-[12px] transition-colors ${
                   isActive(link.to)
@@ -594,6 +628,7 @@ export default function Navbar() {
                   {link.icon && <Home size={14} />}
                   <span>{link.label}</span>
                 </div>
+
                 <ChevronRight size={14} className="text-[#C9B8A8]" />
               </Link>
             ),
@@ -629,8 +664,9 @@ export default function Navbar() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/* Desktop "Products" pill with category dropdown                             */
+/* Desktop Products Dropdown                                                   */
 /* ─────────────────────────────────────────────────────────────────────────── */
+
 function DesktopProductsDropdown({
   link,
   active,
@@ -647,6 +683,7 @@ function DesktopProductsDropdown({
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpen(true);
   };
+
   const handleLeave = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(() => setOpen(false), 120);
@@ -654,12 +691,15 @@ function DesktopProductsDropdown({
 
   useEffect(() => {
     if (!open) return;
+
     const onClick = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
+
     window.addEventListener("mousedown", onClick);
+
     return () => window.removeEventListener("mousedown", onClick);
   }, [open, setOpen]);
 
@@ -684,6 +724,7 @@ function DesktopProductsDropdown({
         }`}
       >
         <span>{link.label}</span>
+
         <ChevronDown
           size={11}
           className={`transition-transform duration-200 ${
@@ -695,7 +736,6 @@ function DesktopProductsDropdown({
       {open && (
         <div
           role="menu"
-          // z-[9999] ensures the dropdown floats above everything including sticky nav
           className="absolute left-1/2 top-full z-[9999] mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-2xl border border-[#E7DED5] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)]"
         >
           <Link
@@ -717,7 +757,6 @@ function DesktopProductsDropdown({
             <div className="border-t border-[#EFE6DC]" />
           )}
 
-          {/* Scrollable category list — max 5 items visible (~52px each) */}
           <div className="max-h-[260px] overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-[#E7DED5] scrollbar-track-transparent">
             {categoryLinks.length === 0 ? (
               <div className="px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-[#C9B8A8]">

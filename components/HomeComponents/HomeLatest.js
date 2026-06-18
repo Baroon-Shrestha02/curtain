@@ -134,6 +134,8 @@ export default function HomeLatest({ limit = 8 }) {
               const image = p.images?.[0]?.url ?? PLACEHOLDER_IMG;
               const showBadge = p.badge && p.badge !== "None";
               const hasDiscount = (p.discount ?? 0) > 0;
+              const basePrice = p.pricePerSqFt ?? 0;
+              const displayPrice = p.discountedPricePerSqFt ?? basePrice;
               const href = p.href ?? `/products/${p.slug}`;
 
               return (
@@ -199,12 +201,13 @@ export default function HomeLatest({ limit = 8 }) {
 
                     <div className="flex items-baseline gap-2">
                       <span className="text-[16px] font-medium text-[#9a7b2e]">
-                        Rs. {p.price?.toLocaleString()}
+                        Rs. {Number(displayPrice).toLocaleString()}
+                        <span className="text-[11px] text-[#a89e90]"> / sq ft</span>
                       </span>
                       {hasDiscount && (
                         <>
                           <span className="text-[12px] text-[#c4bbae] line-through">
-                            Rs. {p.originalPrice?.toLocaleString()}
+                            Rs. {Number(basePrice).toLocaleString()}
                           </span>
                           <span className="ml-auto rounded-md bg-[#FAECE7] px-2 py-0.5 text-[10px] font-medium text-[#993C1D]">
                             -{p.discount}%
