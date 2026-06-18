@@ -287,7 +287,6 @@ export default function Question() {
                   className="h-[100px] object-contain"
                 />
               </div>
-
               <div className="relative z-10">
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
                   Frequently <br className="hidden lg:block" />
