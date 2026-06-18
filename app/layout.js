@@ -9,6 +9,7 @@ import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
 import SmoothScroll from "@/components/Layout/SmoothScroll";
 import ScrollToTop from "@/components/Utils/ScrollToTop";
+import { SiteSettingsProvider } from "@/lib/SiteSettingsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,10 +47,12 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${bebas.variable} min-h-screen flex flex-col`}
       >
         {/* <SmoothScroll /> */}
-        <ScrollToTop />
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteSettingsProvider>
+          <ScrollToTop />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </SiteSettingsProvider>
       </body>
     </html>
   );

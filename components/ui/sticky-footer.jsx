@@ -4,12 +4,50 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "./button";
-import { FaFacebookSquare, FaLinkedin } from "react-icons/fa";
-import { FaSquareInstagram, FaViber } from "react-icons/fa6";
+import { FaFacebookSquare, FaLinkedin, FaTiktok, FaYoutube, FaTwitter } from "react-icons/fa";
+import { FaSquareInstagram } from "react-icons/fa6";
 import { MdFilterFrames } from "react-icons/md";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import {
+  useSiteSettings,
+  useWhatsappNumber,
+} from "@/lib/SiteSettingsContext";
+
+const SOCIAL_ICONS = {
+  facebook: FaFacebookSquare,
+  instagram: FaSquareInstagram,
+  tiktok: FaTiktok,
+  youtube: FaYoutube,
+  twitter: FaTwitter,
+  linkedin: FaLinkedin,
+};
+
+const SOCIAL_LABELS = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  twitter: "Twitter",
+  linkedin: "LinkedIn",
+};
+
+function useSocialLinks() {
+  const { socials } = useSiteSettings();
+  return Object.entries(socials || {})
+    .filter(([, url]) => url && url.trim())
+    .map(([key, url]) => ({
+      key,
+      title: SOCIAL_LABELS[key] || key,
+      href: url,
+      icon: SOCIAL_ICONS[key],
+    }))
+    .filter((s) => s.icon);
+}
 
 export function StickyFooter({ className, ...props }) {
+  const socialLinks = useSocialLinks();
+  const { phones, email, address } = useSiteSettings();
+  const whatsappNumber = useWhatsappNumber();
   return (
     <footer
       className={cn("relative h-screen w-full", className)}
@@ -69,14 +107,21 @@ export function StickyFooter({ className, ...props }) {
                   </div>
                   <div className="flex shrink-0 gap-2">
                     {socialLinks.map((link) => (
-                      <Button
-                        key={link.title}
-                        size="icon"
-                        variant="outline"
-                        className="size-8 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black"
+                      <a
+                        key={link.key}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={link.title}
                       >
-                        <link.icon className="size-4" />
-                      </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="size-8 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black"
+                        >
+                          <link.icon className="size-4" />
+                        </Button>
+                      </a>
                     ))}
                   </div>
                 </AnimatedContainer>
@@ -93,14 +138,21 @@ export function StickyFooter({ className, ...props }) {
                     </p>
                     <div className="flex gap-2">
                       {socialLinks.map((link) => (
-                        <Button
-                          key={link.title}
-                          size="icon"
-                          variant="outline"
-                          className="size-8 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black"
+                        <a
+                          key={link.key}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={link.title}
                         >
-                          <link.icon className="size-4" />
-                        </Button>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="size-8 border-white/20 bg-white/5 text-white hover:bg-white hover:text-black"
+                          >
+                            <link.icon className="size-4" />
+                          </Button>
+                        </a>
                       ))}
                     </div>
                   </AnimatedContainer>
@@ -112,6 +164,59 @@ export function StickyFooter({ className, ...props }) {
                       delay={0.1 + index * 0.1}
                     />
                   ))}
+
+                  {/* Contact column */}
+                  <AnimatedContainer
+                    delay={0.5}
+                    className="col-span-2 md:col-span-1"
+                  >
+                    <h3 className="text-xs uppercase tracking-[0.18em] text-white">
+                      Contact
+                    </h3>
+                    <ul className="mt-3 space-y-2 text-sm text-white/60">
+                      {phones?.map((p) => (
+                        <li key={p}>
+                          <a
+                            href={`tel:+977${p.replace(/\D/g, "")}`}
+                            className="flex items-center gap-2 transition-colors hover:text-white"
+                          >
+                            <Phone className="size-3.5 shrink-0" />
+                            <span>+977 {p}</span>
+                          </a>
+                        </li>
+                      ))}
+                      {whatsappNumber && (
+                        <li>
+                          <a
+                            href={`https://wa.me/${whatsappNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 transition-colors hover:text-white"
+                          >
+                            <MessageCircle className="size-3.5 shrink-0" />
+                            <span>WhatsApp</span>
+                          </a>
+                        </li>
+                      )}
+                      {email && (
+                        <li>
+                          <a
+                            href={`mailto:${email}`}
+                            className="flex items-center gap-2 break-all transition-colors hover:text-white"
+                          >
+                            <Mail className="size-3.5 shrink-0" />
+                            <span>{email}</span>
+                          </a>
+                        </li>
+                      )}
+                      {address && (
+                        <li className="flex items-start gap-2">
+                          <MapPin className="size-3.5 shrink-0 mt-0.5" />
+                          <span>{address}</span>
+                        </li>
+                      )}
+                    </ul>
+                  </AnimatedContainer>
                 </div>
               </div>
 
@@ -173,13 +278,6 @@ function FooterLinkGroup({ group, delay }) {
     </AnimatedContainer>
   );
 }
-
-const socialLinks = [
-  { title: "Facebook", href: "#", icon: FaFacebookSquare },
-  { title: "Instagram", href: "#", icon: FaSquareInstagram },
-  { title: "Viber", href: "#", icon: FaViber },
-  { title: "LinkedIn", href: "#", icon: FaLinkedin },
-];
 
 const footerLinkGroups = [
   {

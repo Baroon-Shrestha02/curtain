@@ -1,23 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
+import { MessageCircle, Phone, Clock, Send, MapPin } from "lucide-react";
 import {
-  MessageCircle,
-  Phone,
-  Clock,
-  Send,
-  MapPin,
-  Building2,
-} from "lucide-react";
-
-const ACCENT = "#E01522";
-const WA = "#25D366";
-const WA_DARK = "#1EBE5D";
-const WHATSAPP_NUMBER = "9779800000000";
+  useSiteSettings,
+  useWhatsappNumber,
+} from "@/lib/SiteSettingsContext";
 
 export default function ContactForm() {
+  const { phones, email, address } = useSiteSettings();
+  const whatsappNumber = useWhatsappNumber();
   const formSectionRef = useRef(null);
-
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -26,67 +19,38 @@ export default function ContactForm() {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Let hero buttons (if present) scroll to this form.
-  useEffect(() => {
-    const scrollToForm = () =>
-      formSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-
-    const ids = ["hero-whatsapp-cta", "hero-contact-cta", "hero-email-cta"];
-    const btns = ids.map((id) => document.getElementById(id)).filter(Boolean);
-    btns.forEach((b) => b.addEventListener("click", scrollToForm));
-
-    const onEvent = () => scrollToForm();
-    window.addEventListener("custom-toggle-channel", onEvent);
-
-    return () => {
-      btns.forEach((b) => b.removeEventListener("click", scrollToForm));
-      window.removeEventListener("custom-toggle-channel", onEvent);
-    };
-  }, []);
-
-  const isRequired = (field) =>
-    field === "name" || field === "address" || field === "message";
-
-  const getBorderColor = (field) => {
-    const value = formData[field].trim();
-    if (!isSubmitted && !value) return "border-gray-200 focus:border-gray-500";
-    if (isRequired(field)) {
-      return value
-        ? "border-green-500 focus:border-green-600"
-        : "border-red-500 focus:border-red-600";
-    }
+  const getBorderColor = (fieldName) => {
+    const value = formData[fieldName].trim();
+    if (!isSubmitted && !value)
+      return "border-stone-200 focus:border-stone-500";
     return value
-      ? "border-gray-400 focus:border-gray-600"
-      : "border-gray-200 focus:border-gray-500";
+      ? "border-emerald-500 bg-emerald-50/10 focus:border-emerald-600"
+      : "border-rose-500 bg-rose-50/10 focus:border-rose-600";
   };
-
-  const buildMessage = () =>
-    `Hello The Cozy Curtains,
-New design & draping inquiry:
-- Name: ${formData.name || "—"}
-- Site address: ${formData.address || "—"}
-- Phone: ${formData.phone || "—"}
-
-Message:
-${formData.message || "—"}`;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
 
     if (
-      formData.name.trim() === "" ||
-      formData.address.trim() === "" ||
-      formData.message.trim() === ""
-    )
+      !formData.name.trim() ||
+      !formData.address.trim() ||
+      !formData.phone.trim() ||
+      !formData.message.trim()
+    ) {
       return;
+    }
 
-    const encodedText = encodeURIComponent(buildMessage());
+    const templateText = `Hello The Cozy-Curtains,
+New Design & Draping Inquiry:
+- Client Name: ${formData.name}
+- Site Address: ${formData.address}
+- Phone/WhatsApp: ${formData.phone}
+
+Message: ${formData.message}`;
+
     window.open(
-      `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedText}`,
+      `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(templateText)}`,
       "_blank",
     );
 
@@ -94,222 +58,157 @@ ${formData.message || "—"}`;
     setIsSubmitted(false);
   };
 
-  const fieldClass = (field) =>
-    `w-full px-4 py-3 bg-white border rounded-xl text-sm text-gray-800 focus:outline-none border-b-2 transition-all duration-200 ${getBorderColor(field)}`;
-
   return (
     <div
       ref={formSectionRef}
       id="contact-form"
-      className="w-full bg-white py-16 px-4 font-sans scroll-mt-6 md:px-8"
+      className="w-full bg-white py-16 px-4 md:px-8 font-sans scroll-mt-6"
     >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 lg:grid-cols-12">
-        {/* ── LEFT: DETAILS & MAP ── */}
-        <div className="space-y-6 lg:col-span-5">
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-6 md:p-8">
-            <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-12">
-              <div className="space-y-5 md:col-span-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        {/* LEFT CONTAINER: DETAILS & MAP */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-stone-50 border border-stone-200/50 rounded-2xl p-6 md:p-8 space-y-5">
+            <h3
+              className="text-xl font-normal text-stone-900 tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              The Cozy-Curtains
+            </h3>
+            <div className="space-y-3 pt-2">
+              {address && (
+                <div className="flex items-start gap-3.5 p-3 rounded-xl border border-transparent bg-white shadow-3xs hover:border-stone-200 transition-all">
+                  <MapPin size={15} className="text-stone-500 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold tracking-wider uppercase text-stone-400">
+                      Address
+                    </p>
+                    <p className="text-sm font-medium text-stone-700">
+                      {address}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {email && (
+                <a
+                  href={`mailto:${email}`}
+                  className="flex items-start gap-3.5 p-3 rounded-xl border border-transparent bg-white shadow-3xs hover:border-stone-200 transition-all"
+                >
+                  <MessageCircle size={15} className="text-stone-500 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold tracking-wider uppercase text-stone-400">
+                      Email
+                    </p>
+                    <p className="text-sm font-medium text-stone-700 break-all">
+                      {email}
+                    </p>
+                  </div>
+                </a>
+              )}
+              <div className="flex items-start gap-3.5 p-3 rounded-xl border border-transparent bg-white shadow-3xs hover:border-stone-200 transition-all">
+                <Phone size={15} className="text-stone-500 mt-0.5" />
                 <div>
-                  <h3 className="text-xl font-bold tracking-tight text-gray-900">
-                    The Cozy Curtains
-                  </h3>
-                  <p
-                    className="mt-1 text-[10px] font-bold uppercase tracking-wider"
-                    style={{ color: ACCENT }}
-                  >
-                    Company details
+                  <p className="text-[10px] font-bold tracking-wider uppercase text-stone-400">
+                    Call Support
+                  </p>
+                  <p className="text-sm font-medium text-stone-700 flex flex-col gap-3">
+                    {phones.map((p) => (
+                      <span key={p}>+977 {p}</span>
+                    ))}
                   </p>
                 </div>
-                <div
-                  className="h-px w-8 rounded-full"
-                  style={{ background: ACCENT }}
-                />
               </div>
-              <div className="flex justify-end md:col-span-4 md:justify-center">
-                <div className="group/logo relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white p-2 transition-all duration-300 hover:border-[#E01522]/40 md:h-24 md:w-24">
-                  <img
-                    src="/logo.png"
-                    alt="The Cozy Curtains logo"
-                    className="h-full w-full rounded-lg object-contain grayscale transition-all duration-500 group-hover/logo:scale-105 group-hover/logo:grayscale-0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-4">
-              {[
-                {
-                  icon: MapPin,
-                  label: "Address",
-                  content: (
-                    <p className="mt-0.5 text-sm font-medium text-gray-700 transition-colors duration-300 group-hover/item:text-gray-950">
-                      Sanepa, Ward-2, Lalitpur, Nepal
-                    </p>
-                  ),
-                },
-                {
-                  icon: Phone,
-                  label: "Call us",
-                  content: (
-                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-1 text-sm font-medium text-gray-700">
-                      <a
-                        href="tel:+97715500000"
-                        className="transition-colors hover:underline"
-                        style={{ color: "inherit" }}
-                      >
-                        +977 1-5500000
-                      </a>
-                      <span className="text-gray-300">/</span>
-                      <a
-                        href="tel:+9779800000000"
-                        className="transition-colors hover:underline"
-                        style={{ color: "inherit" }}
-                      >
-                        +977 9800000000
-                      </a>
-                    </div>
-                  ),
-                },
-                {
-                  icon: Clock,
-                  label: "Office hours",
-                  content: (
-                    <p className="mt-0.5 text-sm font-medium text-gray-700 transition-colors duration-300 group-hover/item:text-gray-950">
-                      Sun – Fri: 9:00 AM – 6:00 PM NPT
-                    </p>
-                  ),
-                },
-              ].map(({ icon: Icon, label, content }) => (
-                <div
-                  key={label}
-                  className="group/item flex items-start gap-3.5 rounded-xl border border-transparent p-3 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-gray-200 hover:bg-white"
-                >
-                  <div
-                    className="mt-0.5 rounded-lg border border-gray-200/60 p-2 transition-colors duration-300"
-                    style={{ color: ACCENT }}
-                  >
-                    <Icon
-                      size={15}
-                      className="transition-transform duration-300 group-hover/item:scale-110"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                      {label}
-                    </p>
-                    {content}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
 
-          <div className="group relative h-[280px] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-100">
+          {/* UPDATED MAP: Smaller height and full color */}
+          <div className="w-full h-[200px] rounded-2xl overflow-hidden border border-stone-200/60 shadow-3xs relative bg-stone-100">
             <iframe
-              title="The Cozy Curtains location"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.224232203648!2d85.29920837529966!3d27.679463676198623!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19000b9b0c7b%3A0xf062d9f1da8c3790!2sJavtech%20Infosys!5e0!3m2!1sen!2snp!4v1779166609165!5m2!1sen!2snp"
               width="100%"
               height="100%"
               style={{ border: 0 }}
-              allowFullScreen=""
               loading="lazy"
-              className="opacity-90 grayscale transition-all duration-500 group-hover:grayscale-0"
+              className="w-full h-full"
             />
           </div>
         </div>
 
-        {/* ── RIGHT: WHATSAPP FORM ── */}
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 md:col-span-7 md:p-8 lg:col-span-7">
-          {/* Header */}
-          <div className="mb-8 flex items-center gap-3">
-            <div
-              className="flex h-11 w-11 items-center justify-center rounded-xl text-white"
-              style={{ background: WA }}
-            >
-              <MessageCircle size={20} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold tracking-tight text-gray-900">
-                Message us on WhatsApp
-              </h3>
-              <p className="text-xs text-gray-500">
-                Tell us about your space and we&apos;ll open WhatsApp with your
-                inquiry ready to send.
-              </p>
-            </div>
+        {/* RIGHT CONTAINER: FORM */}
+        <div className="lg:col-span-7 bg-stone-50 border border-stone-200/60 rounded-2xl p-6 md:p-8 shadow-3xs">
+          <div className="flex items-center justify-center gap-2 mb-8 bg-emerald-600/10 py-3 rounded-xl text-emerald-700">
+            <MessageCircle size={18} />{" "}
+            <span className="text-[11px] font-bold tracking-widest uppercase">
+              Start a WhatsApp Conversation
+            </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="flex flex-col space-y-1.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                  Full name *
+                <label className="text-[10px] font-bold tracking-wider text-stone-500 uppercase">
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  placeholder="Mahesh Basnet"
+                  placeholder="e.g. Mahesh Basnet"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className={fieldClass("name")}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl text-sm border-b-2 ${getBorderColor("name")}`}
                 />
               </div>
               <div className="flex flex-col space-y-1.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                  Site address *
+                <label className="text-[10px] font-bold tracking-wider text-stone-500 uppercase">
+                  Address
                 </label>
                 <input
                   type="text"
-                  placeholder="Gundu, Bhaktapur, Nepal"
+                  placeholder="e.g. Gundu , Bhaktapur"
                   value={formData.address}
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
-                  className={fieldClass("address")}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl text-sm border-b-2 ${getBorderColor("address")}`}
                 />
               </div>
             </div>
 
             <div className="flex flex-col space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                Phone (optional)
+              <label className="text-[10px] font-bold tracking-wider text-stone-500 uppercase">
+                WhatsApp Number
               </label>
               <input
                 type="tel"
-                placeholder="+977 98XXXXXXXX"
+                placeholder="e.g. 9800000000"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className={fieldClass("phone")}
+                className={`w-full px-4 py-3 bg-white border rounded-xl text-sm border-b-2 ${getBorderColor("phone")}`}
               />
             </div>
 
             <div className="flex flex-col space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                Message *
+              <label className="text-[10px] font-bold tracking-wider text-stone-500 uppercase">
+                Requirement / Message
               </label>
               <textarea
                 rows={4}
-                placeholder="Share your custom draping requirements — windows, rooms, fabric preferences, and any design ideas."
+                placeholder="e.g. I need custom velvet curtains for my living room..."
                 value={formData.message}
                 onChange={(e) =>
                   setFormData({ ...formData, message: e.target.value })
                 }
-                className={`${fieldClass("message")} resize-none`}
+                className={`w-full px-4 py-3 bg-white border rounded-xl text-sm border-b-2 resize-none ${getBorderColor("message")}`}
               />
             </div>
 
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-4 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm transition-all duration-300 active:scale-[0.99]"
-              style={{ background: WA }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = WA_DARK)}
-              onMouseLeave={(e) => (e.currentTarget.style.background = WA)}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-[10px] font-bold tracking-widest uppercase text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg transition-all"
             >
-              <Send size={13} />
-              Send via WhatsApp
+              <Send size={12} /> Send to WhatsApp
             </button>
           </form>
         </div>

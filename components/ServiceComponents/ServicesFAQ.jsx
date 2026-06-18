@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, MessageCircle, PlusCircle, Plus } from "lucide-react";
 import Link from "next/link";
+import { useSiteSettings } from "@/lib/SiteSettingsContext";
 
 const faqs = [
   {
@@ -24,6 +25,7 @@ const faqs = [
 ];
 
 export default function ServicesFaq() {
+  const { email } = useSiteSettings();
   const [open, setOpen] = useState(null);
 
   const toggle = (i) => setOpen(open === i ? null : i);
@@ -63,7 +65,7 @@ export default function ServicesFaq() {
                 className="text-sm font-medium text-gray-900"
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
-                info@cozycurtains.com
+                {email || "—"}
               </p>
             </div>
             <Link
@@ -124,7 +126,7 @@ export default function ServicesFaq() {
         {/* Right — full height image */}
         <div className="hidden md:block w-[280px] flex-shrink-0 relative">
           <img
-            src="/services.jpg"
+            src="/servicesFAQ.jpeg"
             alt="Product showcase"
             className="absolute inset-0 w-full h-full object-cover"
           />

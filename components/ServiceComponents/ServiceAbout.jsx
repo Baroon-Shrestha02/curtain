@@ -26,7 +26,7 @@ const STATS = [
 ];
 
 // Replace these with your actual image paths
-const IMAGE_1 = "/slider1.jpg";
+const IMAGE_1 = "/services2.jpeg";
 const IMAGE_2 = "/slider2.jpg";
 
 // ─── COUNTER HOOK ─────────────────────────────────────────────────────────────

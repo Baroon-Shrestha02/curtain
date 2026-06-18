@@ -9,9 +9,7 @@ import {
   getCategories,
   getSubcategoriesBySlug,
 } from "../services/ProductsApi";
-
-const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "977XXXXXXXXXX";
+import { useWhatsappNumber } from "@/lib/SiteSettingsContext";
 
 const BADGES = ["New", "Bestseller", "Sale", "Limited"];
 
@@ -52,6 +50,7 @@ const buildCopy = (categoryName) => {
 
 export default function Products({ category = "" }) {
   const router = useRouter();
+  const whatsappNumber = useWhatsappNumber();
 
   // ── Resolve category: prop may be slug, name, or empty (= all).
   const [resolvedCategoryName, setResolvedCategoryName] = useState("");
@@ -211,7 +210,7 @@ export default function Products({ category = "" }) {
       product.discountedPricePerSqFt ?? product.pricePerSqFt ?? 0;
     const message = `Hello Cozy Curtains, I am interested in this product.\n\nProduct Name: ${product.name}\nCategory: ${product.subcategory}\nPrice: Rs. ${Number(price).toLocaleString()} / sq ft\n\nPlease provide more details.`;
     window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       "_blank",
     );
   };

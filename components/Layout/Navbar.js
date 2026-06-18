@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { getCategories } from "../services/ProductsApi";
+import { useSiteSettings } from "@/lib/SiteSettingsContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,6 +39,7 @@ const quickLinks = [
 ];
 
 export default function Navbar() {
+  const { phones, socials } = useSiteSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -288,20 +290,28 @@ export default function Navbar() {
                 ))}
                 <span className="h-3 w-px bg-white/25" />
                 <div className="flex items-center gap-3">
-                  <a
-                    href="#"
-                    aria-label="Instagram"
-                    className="hover:text-white transition-colors"
-                  >
-                    <FaInstagram size={14} />
-                  </a>
-                  <a
-                    href="#"
-                    aria-label="Facebook"
-                    className="hover:text-white transition-colors"
-                  >
-                    <FaFacebook size={14} />
-                  </a>
+                  {socials?.instagram && (
+                    <a
+                      href={socials.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="hover:text-white transition-colors"
+                    >
+                      <FaInstagram size={14} />
+                    </a>
+                  )}
+                  {socials?.facebook && (
+                    <a
+                      href={socials.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Facebook"
+                      className="hover:text-white transition-colors"
+                    >
+                      <FaFacebook size={14} />
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -333,38 +343,24 @@ export default function Navbar() {
               </Link>
 
               <div ref={iconsRef} className="flex items-center gap-3 sm:gap-5">
-                <div className="hidden lg:flex items-center gap-2.5 text-[#6B5D52]">
-                  <Phone size={18} className="text-[#62101F]" />
-                  <div className="leading-tight">
-                    <div className="text-[9px] uppercase tracking-[0.16em] text-[#A8978A]">
-                      Call us
-                    </div>
-                    <div className="text-[12px]">+977 1 555 0172</div>
-                  </div>
-                </div>
-
-                <div ref={searchRef} className="relative hidden md:block">
-                  <button
-                    onClick={() => setSearchOpen((s) => !s)}
-                    aria-label="Search"
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-[#62101F] hover:bg-[#F3ECE4] transition-colors duration-200"
+                {phones?.length > 0 && (
+                  <a
+                    href={`tel:+977${phones[0].replace(/\D/g, "")}`}
+                    className="hidden lg:flex items-center gap-2.5 text-[#6B5D52]"
                   >
-                    {searchOpen ? <X size={18} /> : <Search size={18} />}
-                  </button>
-                  {searchOpen && (
-                    <div className="absolute right-0 top-12 w-72 bg-white border border-[#E7DED5] rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-3 z-[9999]">
-                      <div className="flex items-center gap-2 bg-[#F3ECE4] rounded-lg px-3 h-10">
-                        <Search size={15} className="text-[#62101F] shrink-0" />
-                        <input
-                          autoFocus
-                          type="text"
-                          placeholder="Search curtains, fabrics…"
-                          className="bg-transparent outline-none w-full text-sm text-[#2C2620]"
-                        />
+                    <Phone size={18} className="text-[#62101F]" />
+                    <div className="leading-tight">
+                      <div className="text-[9px] uppercase tracking-[0.16em] text-[#A8978A]">
+                        Call us
+                      </div>
+                      <div className="text-[12px] flex flex-col">
+                        {phones.map((p) => (
+                          <span key={p}>+977 {p}</span>
+                        ))}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </a>
+                )}
 
                 <Link
                   href="/quote"
@@ -518,17 +514,6 @@ export default function Navbar() {
           >
             <X size={18} />
           </button>
-        </div>
-
-        <div className="p-4 border-b border-[#EFE6DC]">
-          <div className="flex items-center gap-3 bg-[#F3ECE4] rounded-xl px-4 h-11">
-            <Search size={16} className="text-[#62101F] shrink-0" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent outline-none w-full text-sm text-[#2C2620]"
-            />
-          </div>
         </div>
 
         <div className="flex flex-col px-5 py-3">

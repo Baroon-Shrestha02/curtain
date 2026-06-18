@@ -2,8 +2,12 @@
 
 import React from "react";
 import { HeroSection } from "../ui/hero-section-2";
+import { useSiteSettings } from "@/lib/SiteSettingsContext";
 
 export default function ServicesHero() {
+  const { phones, address } = useSiteSettings();
+  const phoneLabel = phones.map((p) => `+977 ${p}`).join(", ");
+
   return (
     <div className="w-full">
       <HeroSection
@@ -19,11 +23,11 @@ export default function ServicesHero() {
           text: "JOIN US TO EXPLORE",
           href: "/contact",
         }}
-        backgroundImage="/services.jpg"
+        backgroundImage="/about2.jpeg"
         contactInfo={{
           website: "yourwebsite.com",
-          phone: "+977 9881739823",
-          address: "Sanepa, Lalipur, Nepal",
+          phone: phoneLabel,
+          address: address || "Sanepa, Lalipur, Nepal",
         }}
       />
     </div>

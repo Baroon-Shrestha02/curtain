@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, MessageCircle, Heart } from "lucide-react";
+import React from "react";
+import { Eye, MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 
 const PLACEHOLDER_IMG =
@@ -21,8 +21,6 @@ const fmt = (n) =>
   });
 
 export default function ProductCard({ product, onView, onWhatsApp }) {
-  const [wished, setWished] = useState(false);
-
   const image = product?.images?.[0]?.url ?? PLACEHOLDER_IMG;
   const hasDiscount = (product?.discount ?? 0) > 0;
   const showBadge = product?.badge && product.badge !== "None";
@@ -146,18 +144,6 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
           </div>
         </div>
 
-        <button
-          onClick={() => setWished((w) => !w)}
-          className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/90"
-          aria-label="Wishlist"
-        >
-          <Heart
-            size={11}
-            fill={wished ? "#62101F" : "none"}
-            stroke={wished ? "#62101F" : "#1A0A0D"}
-            strokeWidth={1.5}
-          />
-        </button>
       </div>
 
       {/* ────────────────────────────────────────
@@ -192,20 +178,6 @@ export default function ProductCard({ product, onView, onWhatsApp }) {
               -{product.discount}%
             </div>
           )}
-
-          <button
-            onClick={() => setWished((w) => !w)}
-            className="absolute right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-110"
-            style={{ top: hasDiscount ? 44 : 12 }}
-            aria-label="Wishlist"
-          >
-            <Heart
-              size={13}
-              fill={wished ? "#62101F" : "none"}
-              stroke={wished ? "#62101F" : "#1A0A0D"}
-              strokeWidth={1.5}
-            />
-          </button>
 
           <div className="absolute bottom-0 left-0 right-0 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0">
             <button

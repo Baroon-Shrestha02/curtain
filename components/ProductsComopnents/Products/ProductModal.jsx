@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, MessageCircle, Star, Heart } from "lucide-react";
+import { X, MessageCircle, Star } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function ProductModal({ product, onClose, onWhatsApp }) {
@@ -54,9 +54,6 @@ export default function ProductModal({ product, onClose, onWhatsApp }) {
                       {product.badge ?? "Sale"}
                     </div>
                   )}
-                  <div className="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/85 backdrop-blur-sm">
-                    <Heart size={14} stroke="#62101F" strokeWidth={1.5} />
-                  </div>
                 </div>
               </div>
 

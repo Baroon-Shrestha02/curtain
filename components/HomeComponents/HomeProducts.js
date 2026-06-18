@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getProducts } from "../services/ProductsApi";
+import { getCategories, getProducts } from "../services/ProductsApi";
 
 const AUTO_DELAY = 5000;
 
@@ -41,17 +41,18 @@ const inView = (delay = 0) => ({
   },
 });
 
-// Normalize a backend product into the shape the carousel expects.
-function toSlide(product) {
+// Normalize a backend product into a category slide.
+function toCategorySlide(category, product) {
+  const slug = category.slug || category.name;
   return {
-    id: product._id,
-    name: product.name,
-    image: product.images?.[0]?.url || PLACEHOLDER_IMG,
-    href: product.href || `/products/${product.slug}`,
+    id: category._id || slug,
+    name: category.name,
+    image: product?.images?.[0]?.url || PLACEHOLDER_IMG,
+    href: `/products/category/${encodeURIComponent(slug)}`,
   };
 }
 
-export default function HomeProducts({ limit = 10 }) {
+export default function HomeProducts() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,16 +62,28 @@ export default function HomeProducts({ limit = 10 }) {
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Fetch latest products from backend
+  // Fetch one product per category
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
 
-    getProducts({ sort: "createdAt", order: "desc", limit })
-      .then(({ products }) => {
+    getCategories()
+      .then(async (categories) => {
         if (cancelled) return;
-        setItems(products.map(toSlide));
+        const results = await Promise.all(
+          categories.map((cat) =>
+            getProducts({
+              category: cat.slug || cat.name,
+              sort: "createdAt",
+              order: "desc",
+              limit: 1,
+            })
+              .then(({ products }) => toCategorySlide(cat, products[0]))
+              .catch(() => toCategorySlide(cat, null)),
+          ),
+        );
+        if (!cancelled) setItems(results);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -84,7 +97,7 @@ export default function HomeProducts({ limit = 10 }) {
     return () => {
       cancelled = true;
     };
-  }, [limit]);
+  }, []);
 
   const total = items.length;
 

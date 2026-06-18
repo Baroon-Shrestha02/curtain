@@ -5,12 +5,13 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
   categories,
   productData,
-  WHATSAPP_NUMBER,
 } from "./Products/ProductsData";
 import ProductModal from "./Products/ProductModal";
 import ProductCard from "./Products/ProductCard";
+import { useWhatsappNumber } from "@/lib/SiteSettingsContext";
 
 export default function Products() {
+  const whatsappNumber = useWhatsappNumber();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,7 +70,7 @@ Price: Rs. ${product.price}
 Please provide more details.
 `;
 
-    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
       message,
     )}`;
 

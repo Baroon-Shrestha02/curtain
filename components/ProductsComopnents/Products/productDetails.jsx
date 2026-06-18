@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProductCard from "./ProductCard";
+import { useWhatsappNumber } from "@/lib/SiteSettingsContext";
 
 // ── Props ──────────────────────────────────────────────────────────────────
 // product  : full product object from MongoDB / API
@@ -26,6 +27,7 @@ const fmt = (n) =>
 
 export default function ProductDetail({ product, products = [], onBack }) {
   const router = useRouter();
+  const whatsappNumber = useWhatsappNumber();
   const [activeImage, setActiveImage] = useState(0);
   const minOrder = Math.max(1, Number(product?.minOrderQty) || 1);
   const [quantity, setQuantity] = useState(minOrder);
@@ -109,10 +111,8 @@ Quantity: ${safeQty} sq ft
 Total: Rs. ${fmt(total)}
 
 Please provide more details.`;
-    const WHATSAPP_NUMBER =
-      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "977XXXXXXXXXX";
     window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
       "_blank",
     );
   };
@@ -480,12 +480,9 @@ Please provide more details.`;
                   onWhatsApp={(prod) => {
                     const price =
                       prod.discountedPricePerSqFt ?? prod.pricePerSqFt ?? 0;
-                    const WHATSAPP_NUMBER =
-                      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ??
-                      "977XXXXXXXXXX";
                     const msg = `Hello Cozy Curtains, I am interested in ${prod.name} (Rs. ${fmt(price)} / sq ft). Please provide more details.`;
                     window.open(
-                      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,
+                      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`,
                       "_blank",
                     );
                   }}

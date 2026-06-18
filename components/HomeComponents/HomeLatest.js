@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
-  Heart,
   ArrowUpRight,
   ChevronLeft,
   ChevronRight,
@@ -24,7 +23,6 @@ const badgeStyles = {
 
 export default function HomeLatest({ limit = 8 }) {
   const scrollRef = useRef(null);
-  const [wishlist, setWishlist] = useState(() => new Set());
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,14 +47,6 @@ export default function HomeLatest({ limit = 8 }) {
       cancelled = true;
     };
   }, [limit]);
-
-  const toggleWishlist = (id) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
 
   const scrollBy = (dir) => {
     const el = scrollRef.current;
@@ -141,7 +131,6 @@ export default function HomeLatest({ limit = 8 }) {
             className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {products.map((p, i) => {
-              const liked = wishlist.has(p._id);
               const image = p.images?.[0]?.url ?? PLACEHOLDER_IMG;
               const showBadge = p.badge && p.badge !== "None";
               const hasDiscount = (p.discount ?? 0) > 0;
@@ -182,31 +171,6 @@ export default function HomeLatest({ limit = 8 }) {
                       </span>
                     )}
 
-                    {!p.inStock && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/65 backdrop-blur-[1px]">
-                        <span className="rounded-full border border-black/15 bg-white px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-black/65">
-                          Out of stock
-                        </span>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleWishlist(p._id);
-                      }}
-                      aria-label="Add to wishlist"
-                      aria-pressed={liked}
-                      className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur transition hover:scale-110 hover:bg-white"
-                    >
-                      <Heart
-                        size={15}
-                        stroke="#62101F"
-                        fill={liked ? "#62101F" : "none"}
-                        strokeWidth={1.6}
-                        className="transition-all"
-                      />
-                    </button>
                   </Link>
 
                   {/* Info */}

@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
+import { useWhatsappNumber } from "@/lib/SiteSettingsContext";
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const WHATSAPP_NUMBER = "9779818739823"; // your WhatsApp business number (no +, no spaces)
 const BG_IMAGE = "/quote.jpg"; // atmospheric curtain / interior photo
 
 const FABRICS = [
@@ -45,6 +45,7 @@ const emptyWindow = () => ({
 });
 
 export default function QuotePage() {
+  const whatsappNumber = useWhatsappNumber();
   const [windows, setWindows] = useState([emptyWindow()]);
   const [fabric, setFabric] = useState("");
   const [header, setHeader] = useState("");
@@ -106,7 +107,7 @@ export default function QuotePage() {
       return;
     }
     const msg = encodeURIComponent(buildMessage());
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+    window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, "_blank");
   };
 
   const inputCls = (err) =>

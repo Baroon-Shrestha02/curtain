@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, MessageCircle, PlusCircle, Plus } from "lucide-react";
 import Link from "next/link";
+import { useSiteSettings } from "@/lib/SiteSettingsContext";
 
 const faqs = [
   {
@@ -28,6 +29,7 @@ const faqs = [
 ];
 
 export default function HomeFaq() {
+  const { email } = useSiteSettings();
   const [open, setOpen] = useState(null);
 
   const toggle = (i) => setOpen(open === i ? null : i);
@@ -67,7 +69,7 @@ export default function HomeFaq() {
                 className="text-sm font-medium text-gray-900"
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
-                info@cozycurtains.com
+                {email || "—"}
               </p>
             </div>
             <Link

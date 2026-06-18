@@ -14,7 +14,7 @@ const SERVICES = [
   "Commissions",
 ];
 
-const BG_IMAGE = "/services.jpg";
+const BG_IMAGE = "/about2.jpeg";
 
 // Pill tag with background-clip text effect
 function ServiceTag({ label }) {

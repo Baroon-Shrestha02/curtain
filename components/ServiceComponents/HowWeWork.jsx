@@ -19,7 +19,7 @@ const STEPS = [
     title: "Choose Your Fabric & Style",
     body: "Browse our sample books in your own home and your own light. We help you select the right fabric, colour, heading style, and lining for each room.",
     tag: "In-home samples",
-    image: "/services/img/two.jpg",
+    image: "/step2.png",
     alt: "Fabric samples",
   },
   {
@@ -35,7 +35,7 @@ const STEPS = [
     title: "Professional Installation",
     body: "Our fitting team installs everything cleanly and securely. We hang, dress, and adjust each piece until it looks exactly right — then walk you through the care.",
     tag: "1–3 hours",
-    image: "/services/img/four.jpg",
+    image: "/step4.jpeg",
     alt: "Professional fitting",
   },
 ];

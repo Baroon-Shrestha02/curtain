@@ -1,12 +1,15 @@
 "use client";
 // components/AboutSection.jsx
-import React, { useRef, useState } from "react";
+import React from "react";
 import { motion } from "motion/react";
 
-// 👇 Swap these two for your own files (put them in /public or use a CDN URL)
+// 👇 Swap these for your own files (put them in /public or use a CDN URL)
 const VIDEO_SRC = "/videos/cozy-curtains.mp4";
+const VIDEO_SRC_CENTER = "about.mp4";
 const POSTER_SRC =
   "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=70";
+const POSTER_SRC_CENTER =
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 40 },
@@ -44,11 +47,6 @@ const imageScale = {
 };
 
 export default function HomeAbout() {
-  const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const startVideo = () => videoRef.current?.play();
-
   return (
     <section className="container mx-auto relative w-full bg-white overflow-hidden px-5 sm:px-8 lg:px-12 py-16 lg:py-0 lg:pt-16 lg:min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-3 items-start lg:items-center gap-12 lg:min-h-[80vh]">
@@ -76,43 +74,21 @@ export default function HomeAbout() {
             </motion.h2>
           ))}
 
-          {/* Video — real element, full column width */}
+          {/* Video — autoplay, muted, loop */}
           <motion.div
             {...fadeUp(0.55)}
-            onClick={isPlaying ? undefined : startVideo}
-            className="group relative w-full aspect-[4/3] rounded-sm overflow-hidden bg-neutral-200 cursor-pointer"
+            className="group relative w-full aspect-[4/3] rounded-sm overflow-hidden bg-neutral-200"
           >
             <video
-              ref={videoRef}
               src={VIDEO_SRC}
               poster={POSTER_SRC}
+              autoPlay
+              muted
+              loop
               playsInline
               preload="metadata"
-              controls={isPlaying}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
-              className={`h-full w-full object-cover transition-all duration-500 ${
-                isPlaying ? "grayscale-0" : "grayscale group-hover:grayscale-0"
-              }`}
+              className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
             />
-
-            {!isPlaying && (
-              <>
-                <div className="absolute inset-0 bg-black/35 group-hover:bg-black/15 transition-colors duration-300" />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-16 h-16 rounded-full bg-white/15 border border-white/50 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                    <svg
-                      className="w-5 h-5 text-white ml-0.5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                    </svg>
-                  </div>
-                </div>
-              </>
-            )}
           </motion.div>
 
           <motion.p
@@ -125,16 +101,21 @@ export default function HomeAbout() {
           </motion.p>
         </div>
 
-        {/* Center Image */}
+        {/* Center Video */}
         <div className="flex justify-center">
           <motion.div
             {...imageReveal}
             className="relative w-[260px] md:w-[320px] h-[430px] md:h-[520px] overflow-hidden bg-neutral-200"
           >
-            <motion.img
+            <motion.video
               {...imageScale}
-              src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop"
-              alt="Curtain interior"
+              src={VIDEO_SRC_CENTER}
+              poster={POSTER_SRC_CENTER}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
               className="block w-full h-full object-cover"
             />
           </motion.div>

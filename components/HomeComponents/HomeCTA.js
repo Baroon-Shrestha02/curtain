@@ -4,15 +4,25 @@ import React from "react";
 import { motion } from "motion/react";
 import { MessageCircle, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import {
+  useSiteSettings,
+  useWhatsappNumber,
+} from "@/lib/SiteSettingsContext";
 
 export default function HomeCTA() {
+  const { phones, email, address } = useSiteSettings();
+  const whatsappNumber = useWhatsappNumber();
+  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    "Hello Cozy Curtains, I want to order custom curtains.",
+  )}`;
+
   return (
     <section className="relative w-full bg-white px-5 py-20 md:px-10">
       <div className="container mx-auto">
         <div className="relative min-h-[520px] overflow-hidden rounded-[2rem]">
           {/* Background Image */}
           <img
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1800&auto=format&fit=crop"
+            src="footer.jpeg"
             alt="Premium curtains interior"
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -52,7 +62,7 @@ export default function HomeCTA() {
               {/* Buttons */}
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <a
-                  href="https://wa.me/9779800000000?text=Hello%20Cozy%20Curtains,%20I%20want%20to%20order%20custom%20curtains."
+                  href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-3 rounded-full bg-[#62101F] px-8 py-4 text-sm font-medium uppercase tracking-[0.18em] text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
@@ -88,20 +98,29 @@ export default function HomeCTA() {
             >
               <div className="flex items-center gap-3">
                 <Phone size={17} className="text-[#C9A84C]" />
-                <span className="text-sm">+977 9800000000</span>
+                <span className="text-sm">
+                  {phones.map((p) => `+977 ${p}`).join(", ")}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <MessageCircle size={17} className="text-[#C9A84C]" />
-                <span className="text-sm">WhatsApp / Viber Available</span>
+                <span className="text-sm">WhatsApp Available</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Mail size={17} className="text-[#C9A84C]" />
-                <span className="text-sm">info@cozycurtains.com</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin size={17} className="text-[#C9A84C]" />
-                <span className="text-sm">Kathmandu, Nepal</span>
-              </div>
+              {email && (
+                <a
+                  href={`mailto:${email}`}
+                  className="flex items-center gap-3"
+                >
+                  <Mail size={17} className="text-[#C9A84C]" />
+                  <span className="text-sm">{email}</span>
+                </a>
+              )}
+              {address && (
+                <div className="flex items-center gap-3">
+                  <MapPin size={17} className="text-[#C9A84C]" />
+                  <span className="text-sm">{address}</span>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

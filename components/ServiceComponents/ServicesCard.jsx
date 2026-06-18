@@ -12,7 +12,7 @@ const ROOMS = [
     kicker: "For your",
     title: "Living Room",
     body: "Full-length curtains in linen or velvet add height and drama, with sheers layered underneath for flexible daytime light.",
-    video: "/services/one.mp4",
+    video: "/living.MOV",
     poster: "/images/living-room.jpg",
   },
   {
@@ -26,7 +26,7 @@ const ROOMS = [
     kicker: "For your",
     title: "Kitchen",
     body: "Practical, wipe-clean roller blinds in moisture-resistant fabrics that stack neatly and stand up to daily use.",
-    video: "/services/three.mp4",
+    video: "/kitchen.mp4",
     poster: "/images/kitchen.jpg",
   },
   {
@@ -34,6 +34,13 @@ const ROOMS = [
     title: "Home Office",
     body: "Dim-out blinds that cut screen glare without darkening the room, in calm neutral tones to keep you focused.",
     video: "/services/four.mp4",
+    poster: "/images/home-office.jpg",
+  },
+  {
+    kicker: "For your",
+    title: "Home (Insect Sheild)",
+    body: "Dim-out blinds that cut screen glare without darkening the room, in calm neutral tones to keep you focused.",
+    video: "/shield.mp4",
     poster: "/images/home-office.jpg",
   },
   // {
