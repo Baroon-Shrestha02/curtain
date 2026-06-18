@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 
 // 👇 Swap these for your own files (put them in /public or use a CDN URL)
-const VIDEO_SRC = "/videos/cozy-curtains.mp4";
+const VIDEO_SRC = "/living.MOV";
 const VIDEO_SRC_CENTER = "about.mp4";
 const POSTER_SRC =
   "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=70";
@@ -87,7 +87,7 @@ export default function HomeAbout() {
               loop
               playsInline
               preload="metadata"
-              className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+              className="h-full w-full object-cover transition-all duration-500"
             />
           </motion.div>
 
